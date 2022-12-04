@@ -5,7 +5,7 @@ plugins {
     application
 }
 
-group = "org.examplenet.t53k"
+group = "net.t53k"
 version = "1.0-SNAPSHOT"
 
 repositories {
