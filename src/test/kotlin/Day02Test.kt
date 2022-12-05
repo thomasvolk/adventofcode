@@ -10,11 +10,11 @@ class Day02Test {
     @Test
     fun testPair() {
         val pairs = listOf(
-            Pair(Guess.ROCK, Guess.PAPER),
-            Pair(Guess.PAPER, Guess.ROCK),
-            Pair(Guess.SCISSORS, Guess.SCISSORS)
+            Pair(Choice.ROCK, Choice.PAPER),
+            Pair(Choice.PAPER, Choice.ROCK),
+            Pair(Choice.SCISSORS, Choice.SCISSORS)
         )
-        assertEquals(15, pairs.map { Guess.round(it) }.sum())
+        assertEquals(15, pairs.map { Choice.score(it) }.sum())
     }
 
     @Test

@@ -3,7 +3,7 @@ package net.t53k
 import java.io.File
 import java.net.URL
 
-enum class Guess(private val score: Int) {
+enum class Choice(private val score: Int) {
     ROCK(1), PAPER(2), SCISSORS(3);
 
 
@@ -25,11 +25,11 @@ enum class Guess(private val score: Int) {
             Pair(SCISSORS, SCISSORS) to draw
         )
 
-        fun findMappingForScore(score: Int): Set<Pair<Guess, Guess>> {
+        fun findMappingForScore(score: Int): Set<Pair<Choice, Choice>> {
             return scoreMapping.filter { it.value == score } .keys
         }
 
-        fun round(opponentMePair: Pair<Guess, Guess>): Int {
+        fun score(opponentMePair: Pair<Choice, Choice>): Int {
             val (_, me) = opponentMePair
             return scoreMapping[opponentMePair]!! + me.score
         }
@@ -37,28 +37,28 @@ enum class Guess(private val score: Int) {
 }
 
 object Day02 {
-    private val mapping = mapOf(
-        "A" to Guess.ROCK,
-        "B" to Guess.PAPER,
-        "C" to Guess.SCISSORS
+    private val elfInputMapping = mapOf(
+        "A" to Choice.ROCK,
+        "B" to Choice.PAPER,
+        "C" to Choice.SCISSORS
     )
 
     private val partOneMapping = mapOf(
-        "X" to Guess.ROCK,
-        "Y" to Guess.PAPER,
-        "Z" to Guess.SCISSORS
+        "X" to Choice.ROCK,
+        "Y" to Choice.PAPER,
+        "Z" to Choice.SCISSORS
     )
     private val partTwoMapping = mapOf(
-        "X" to Guess.loss,
-        "Y" to Guess.draw,
-        "Z" to Guess.victory
+        "X" to Choice.loss,
+        "Y" to Choice.draw,
+        "Z" to Choice.victory
     )
 
     fun totalScopeAdvancedMapping(url: URL): Int {
         File(url.toURI()).useLines {lines ->
             return lines.toList()
                 .map { interpretPartTwo(it.trim()) }
-                .sumOf { pair -> Guess.round(pair) }
+                .sumOf { pair -> Choice.score(pair) }
         }
     }
 
@@ -66,22 +66,22 @@ object Day02 {
         File(url.toURI()).useLines {lines ->
             return lines.toList()
                 .map { interpretPartOne(it.trim()) }
-                .sumOf { pair -> Guess.round(pair) }
+                .sumOf { pair -> Choice.score(pair) }
         }
     }
 
-    private fun interpretPartTwo(line: String): Pair<Guess, Guess> {
-        val guesses = line.split(" ")
-        val elfGuess = mapping[guesses[0]]!!
-        val result = partTwoMapping[guesses[1]]!!
-        val (_, myGuess) = Guess.findMappingForScore(result).first { it.first == elfGuess }
-        return Pair(elfGuess, myGuess)
+    private fun interpretPartTwo(line: String): Pair<Choice, Choice> {
+        val choices = line.split(" ")
+        val elfChoice = elfInputMapping[choices[0]]!!
+        val result = partTwoMapping[choices[1]]!!
+        val (_, myChoice) = Choice.findMappingForScore(result).first { it.first == elfChoice }
+        return Pair(elfChoice, myChoice)
     }
-    private fun interpretPartOne(line: String): Pair<Guess, Guess> {
-        val guesses = line.split(" ")
-        val elfGuess = mapping[guesses[0]]!!
-        val myGuess = partOneMapping[guesses[1]]!!
-        return Pair(elfGuess, myGuess)
+    private fun interpretPartOne(line: String): Pair<Choice, Choice> {
+        val choices = line.split(" ")
+        val elfChoice = elfInputMapping[choices[0]]!!
+        val myChoice = partOneMapping[choices[1]]!!
+        return Pair(elfChoice, myChoice)
     }
 
 
