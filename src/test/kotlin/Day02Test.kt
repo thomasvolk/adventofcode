@@ -19,7 +19,7 @@ class Day02Test {
 
     @Test
     fun testDay02Part1() {
-        val totalScope = Day02.totalScope(inputFile)
+        val totalScope = Day02.totalScopeSimpleMapping(inputFile)
         assertEquals(13565, totalScope)
     }
 }

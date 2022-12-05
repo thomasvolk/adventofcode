@@ -6,42 +6,58 @@ import java.net.URL
 enum class Guess(private val score: Int) {
     ROCK(1), PAPER(2), SCISSORS(3);
 
+
+
     companion object {
-        private const val victory = 6;
+        private const val victory = 6
         private const val draw = 3
+        private const val loss = 0
+
+        private val scoreMapping = mapOf(
+            Pair(ROCK, PAPER) to victory,
+            Pair(ROCK, SCISSORS) to loss,
+            Pair(ROCK, ROCK) to draw,
+            Pair(PAPER, ROCK) to loss,
+            Pair(PAPER, SCISSORS) to victory,
+            Pair(PAPER, PAPER) to draw,
+            Pair(SCISSORS, ROCK) to victory,
+            Pair(SCISSORS, PAPER) to loss,
+            Pair(SCISSORS, SCISSORS) to draw
+        )
+
         fun round(opponentMePair: Pair<Guess, Guess>): Int {
-            val (opponent, me) = opponentMePair
-            return when (opponentMePair) {
-                Pair(ROCK, PAPER) -> me.score + victory
-                Pair(PAPER, ROCK) -> me.score
-                Pair(SCISSORS, ROCK) -> me.score + victory
-                Pair(ROCK, SCISSORS) -> me.score
-                Pair(PAPER, SCISSORS) -> me.score + victory
-                Pair(SCISSORS, PAPER) -> me.score
-                else -> me.score + draw
-            }
+            val (_, me) = opponentMePair
+            return scoreMapping[opponentMePair]!! + me.score
         }
     }
 }
 
 object Day02 {
-    val mapping = mapOf<String, Guess>(
+    private val mapping = mapOf(
         "A" to Guess.ROCK,
         "B" to Guess.PAPER,
-        "C" to Guess.SCISSORS,
+        "C" to Guess.SCISSORS
+    )
+
+    private val partOneMapping = mapOf(
         "X" to Guess.ROCK,
         "Y" to Guess.PAPER,
-        "Z" to Guess.SCISSORS,
+        "Z" to Guess.SCISSORS
     )
-    fun totalScope(url: URL): Int {
-        val text = File(url.toURI()).useLines {lines ->
-            return lines.toList().map { asPair(it.trim()) }.map { pair -> Guess.round(pair) }.sum()
+
+    fun totalScopeSimpleMapping(url: URL): Int {
+        File(url.toURI()).useLines {lines ->
+            return lines.toList()
+                .map { interpretPartOne(it.trim()) }
+                .sumOf { pair -> Guess.round(pair) }
         }
     }
 
-    private fun asPair(line: String): Pair<Guess, Guess> {
-        val guesses = line.split(" ").map { mapping[it] }
-        return Pair(guesses[0]!!, guesses[1]!!)
+    private fun interpretPartOne(line: String): Pair<Guess, Guess> {
+        val guesses = line.split(" ")
+        val elfGuess = mapping[guesses[0]]!!
+        val myGuess = partOneMapping[guesses[1]]!!
+        return Pair(elfGuess, myGuess)
     }
 
 
