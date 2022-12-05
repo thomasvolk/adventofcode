@@ -3,40 +3,39 @@ package net.t53k
 import java.io.File
 import java.net.URL
 
-enum class Choice(private val score: Int) {
-    ROCK(1), PAPER(2), SCISSORS(3);
+object Day02 {
+    enum class Choice(private val score: Int) {
+        ROCK(1), PAPER(2), SCISSORS(3);
 
 
 
-    companion object {
-        const val victory = 6
-        const val draw = 3
-        const val loss = 0
+        companion object {
+            const val victory = 6
+            const val draw = 3
+            const val loss = 0
 
-        private val scoreMapping = mapOf(
-            Pair(ROCK, PAPER) to victory,
-            Pair(ROCK, SCISSORS) to loss,
-            Pair(ROCK, ROCK) to draw,
-            Pair(PAPER, ROCK) to loss,
-            Pair(PAPER, SCISSORS) to victory,
-            Pair(PAPER, PAPER) to draw,
-            Pair(SCISSORS, ROCK) to victory,
-            Pair(SCISSORS, PAPER) to loss,
-            Pair(SCISSORS, SCISSORS) to draw
-        )
+            private val scoreMapping = mapOf(
+                Pair(ROCK, PAPER) to victory,
+                Pair(ROCK, SCISSORS) to loss,
+                Pair(ROCK, ROCK) to draw,
+                Pair(PAPER, ROCK) to loss,
+                Pair(PAPER, SCISSORS) to victory,
+                Pair(PAPER, PAPER) to draw,
+                Pair(SCISSORS, ROCK) to victory,
+                Pair(SCISSORS, PAPER) to loss,
+                Pair(SCISSORS, SCISSORS) to draw
+            )
 
-        fun findMappingForScore(score: Int): Set<Pair<Choice, Choice>> {
-            return scoreMapping.filter { it.value == score } .keys
-        }
+            fun findMappingForScore(score: Int): Set<Pair<Choice, Choice>> {
+                return scoreMapping.filter { it.value == score } .keys
+            }
 
-        fun score(opponentMePair: Pair<Choice, Choice>): Int {
-            val (_, me) = opponentMePair
-            return scoreMapping[opponentMePair]!! + me.score
+            fun score(opponentMePair: Pair<Choice, Choice>): Int {
+                val (_, me) = opponentMePair
+                return scoreMapping[opponentMePair]!! + me.score
+            }
         }
     }
-}
-
-object Day02 {
     private val elfInputMapping = mapOf(
         "A" to Choice.ROCK,
         "B" to Choice.PAPER,

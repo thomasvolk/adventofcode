@@ -3,6 +3,7 @@ package net.t53k
 import org.junit.jupiter.api.Test
 import java.net.URL
 import kotlin.test.assertEquals
+import net.t53k.Day02.Choice
 
 class Day02Test {
     private val inputFile: URL = Day01::class.java.getResource("/Day02-input.txt")!!
