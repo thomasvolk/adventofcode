@@ -42,8 +42,7 @@ class Day03Test {
         val itemSummary = rucksacks
             .map { r -> r.itemsInCompartment().filter { it.value > 1 }.keys }
             .flatten()
-            .map { Day03.mapItem(it) }
-            .sum()
+            .sumOf { Day03.mapItem(it) }
         assertEquals(8349, itemSummary)
     }
 }
