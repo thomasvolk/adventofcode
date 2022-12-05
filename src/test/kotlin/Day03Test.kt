@@ -10,11 +10,11 @@ class Day03Test {
     @Test
     fun testRucksack() {
         val items = "vJrwpWtwJgWrhcsFMMfFFhFp"
-        val rucksack2 = Day03.Rucksack.parse(items)
+        val rucksack2 = Day03.Rucksack.create(items, 1)
         assertEquals(2, rucksack2.compartments.count())
         assertEquals(listOf('v', 'J', 'r', 'w', 'p', 'W', 't', 'w', 'J', 'g', 'W', 'r'), rucksack2.compartments[0].items)
         assertEquals(listOf('h', 'c', 's', 'F', 'M', 'M', 'f', 'F', 'F', 'h', 'F', 'p'), rucksack2.compartments[1].items)
-        val rucksack3 = Day03.Rucksack.parse(items, 3)
+        val rucksack3 = Day03.Rucksack.create(items,1, 3)
         assertEquals(3, rucksack3.compartments.count())
         assertEquals(listOf('v', 'J', 'r', 'w', 'p', 'W', 't', 'w'), rucksack3.compartments[0].items)
         assertEquals(listOf('J', 'g', 'W', 'r', 'h', 'c', 's', 'F'), rucksack3.compartments[1].items)
@@ -23,7 +23,7 @@ class Day03Test {
     @Test
     fun testItems() {
         val items = "vJrwpWtwJgWrhcsFMMfFFhFp"
-        val rucksack2 = Day03.Rucksack.parse(items)
+        val rucksack2 = Day03.Rucksack.create(items, 1)
         val itemsInCompartments = rucksack2.itemsInCompartment()
         val itemInTwoCompartments = itemsInCompartments.filter { it.value > 1 }.keys
         assertEquals(1, itemInTwoCompartments.count())
@@ -44,5 +44,12 @@ class Day03Test {
             .flatten()
             .sumOf { Day03.mapItem(it) }
         assertEquals(8349, itemSummary)
+    }
+    @Test
+    fun testDay03Part2() {
+        val rucksacks = Day03.rucksacksFromFile(inputFile)
+        val groups = rucksacks.groupBy { it.groupId }
+        val groupItems = groups.map { Day03.findGroupItem(it.value) }
+        assertEquals(2681, groupItems.sumOf { Day03.mapItem(it) })
     }
 }
