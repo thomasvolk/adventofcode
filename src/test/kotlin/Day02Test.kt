@@ -22,4 +22,10 @@ class Day02Test {
         val totalScope = Day02.totalScopeSimpleMapping(inputFile)
         assertEquals(13565, totalScope)
     }
+
+    @Test
+    fun testDay02Part2() {
+        val totalScope = Day02.totalScopeAdvancedMapping(inputFile)
+        assertEquals(12424, totalScope)
+    }
 }

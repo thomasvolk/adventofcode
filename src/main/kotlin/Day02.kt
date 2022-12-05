@@ -9,9 +9,9 @@ enum class Guess(private val score: Int) {
 
 
     companion object {
-        private const val victory = 6
-        private const val draw = 3
-        private const val loss = 0
+        const val victory = 6
+        const val draw = 3
+        const val loss = 0
 
         private val scoreMapping = mapOf(
             Pair(ROCK, PAPER) to victory,
@@ -24,6 +24,10 @@ enum class Guess(private val score: Int) {
             Pair(SCISSORS, PAPER) to loss,
             Pair(SCISSORS, SCISSORS) to draw
         )
+
+        fun findMappingForScore(score: Int): Set<Pair<Guess, Guess>> {
+            return scoreMapping.filter { it.value == score } .keys
+        }
 
         fun round(opponentMePair: Pair<Guess, Guess>): Int {
             val (_, me) = opponentMePair
@@ -44,6 +48,19 @@ object Day02 {
         "Y" to Guess.PAPER,
         "Z" to Guess.SCISSORS
     )
+    private val partTwoMapping = mapOf(
+        "X" to Guess.loss,
+        "Y" to Guess.draw,
+        "Z" to Guess.victory
+    )
+
+    fun totalScopeAdvancedMapping(url: URL): Int {
+        File(url.toURI()).useLines {lines ->
+            return lines.toList()
+                .map { interpretPartTwo(it.trim()) }
+                .sumOf { pair -> Guess.round(pair) }
+        }
+    }
 
     fun totalScopeSimpleMapping(url: URL): Int {
         File(url.toURI()).useLines {lines ->
@@ -53,6 +70,13 @@ object Day02 {
         }
     }
 
+    private fun interpretPartTwo(line: String): Pair<Guess, Guess> {
+        val guesses = line.split(" ")
+        val elfGuess = mapping[guesses[0]]!!
+        val result = partTwoMapping[guesses[1]]!!
+        val (_, myGuess) = Guess.findMappingForScore(result).first { it.first == elfGuess }
+        return Pair(elfGuess, myGuess)
+    }
     private fun interpretPartOne(line: String): Pair<Guess, Guess> {
         val guesses = line.split(" ")
         val elfGuess = mapping[guesses[0]]!!
