@@ -29,6 +29,7 @@ class Day04Test {
         assertTrue(Day04.ElfPair((23..34), (22..30)).sectionOverlapping())
         assertTrue(Day04.ElfPair((22..30), (23..34)).sectionOverlapping())
         assertFalse(Day04.ElfPair((10..40), (400..3800)).sectionOverlapping())
+        assertFalse(Day04.ElfPair((10..40), (4..5)).sectionOverlapping())
     }
     @Test
     fun testDay04Part1() {
