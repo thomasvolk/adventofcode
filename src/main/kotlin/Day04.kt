@@ -18,8 +18,9 @@ object Day04 {
     }
 
     private fun sectionOverlapping(a: IntRange, b: IntRange): Boolean {
-        return sectionContaining(a, b) || (a.first < b.first && a.last <= b.last && a.last >= b.first) ||
-                (a.last > b.last && a.first >= b.first && a.first <= b.last)
+        return sectionContaining(a, b)
+                || (a.first < b.first && a.last <= b.last && a.last >= b.first)
+                || (a.last > b.last && a.first >= b.first && a.first <= b.last)
     }
 
 
