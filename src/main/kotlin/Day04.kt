@@ -13,17 +13,25 @@ object Day04 {
         return Pair((elfAstart..elfAend), (elfBstart..elfBend))
     }
 
-    fun sectionContained(a: IntRange, b: IntRange): Boolean {
+    private fun sectionContaining(a: IntRange, b: IntRange): Boolean {
         return a.first >= b.first  && a.last <= b.last
     }
 
-    data class ElfPair(val sectionA: IntRange, val sectionB: IntRange) {
-
-        fun sectionContained(): Boolean {
-           return Day04.sectionContained(sectionA, sectionB) || Day04.sectionContained(sectionB, sectionA)
-        }
+    private fun sectionOverlapping(a: IntRange, b: IntRange): Boolean {
+        return sectionContaining(a, b) || (a.first < b.first && a.last <= b.last && a.last >= b.first) ||
+                (a.last > b.last && a.first >= b.first && a.first <= b.last)
     }
 
+
+    data class ElfPair(val sectionA: IntRange, val sectionB: IntRange) {
+
+        fun sectionContaining(): Boolean {
+           return Day04.sectionContaining(sectionA, sectionB) || Day04.sectionContaining(sectionB, sectionA)
+        }
+        fun sectionOverlapping(): Boolean {
+            return Day04.sectionOverlapping(sectionA, sectionB) || Day04.sectionOverlapping(sectionB, sectionA)
+        }
+    }
     fun parse(url: URL): List<ElfPair> {
         File(url.toURI()).useLines { lines ->
             return lines.toList()
