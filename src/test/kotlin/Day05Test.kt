@@ -8,6 +8,8 @@ class Day05Test {
 
     @Test
     fun testParse() {
-        Day05.parse(inputFile)
+        val (cargoStacks, commands) = Day05.parse(inputFile)
+        commands.forEach { it.execute(cargoStacks) }
+        println(cargoStacks.map { (i, s) -> s.peek() }.joinToString(""))
     }
 }
