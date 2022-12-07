@@ -9,6 +9,7 @@ class Day06Test {
 
     @Test
     fun testDay06part1() {
+        assertEquals(7, Day06.firstMarkerPosition("mjqjpqmgbljsphdztnvjfqwrcgsmlb"))
         assertEquals(5, Day06.firstMarkerPosition("bvwbjplbgvbhsrlpgdmjqwftvncz"))
         assertEquals(6, Day06.firstMarkerPosition("nppdvjthqldpwncqszvftbrmjlhg"))
         assertEquals(11, Day06.firstMarkerPosition("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"))
