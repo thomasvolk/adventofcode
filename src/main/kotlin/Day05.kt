@@ -8,7 +8,7 @@ object Day05 {
     interface Command {
         fun execute(cargoStacks:  Map<Int, Stack<Char>>)
     }
-    data class MoveCommand(val amount: Int, val from: Int, val to: Int) : Command {
+    data class MoveCommandCM9000(val amount: Int, val from: Int, val to: Int) : Command {
         override fun execute(cargoStacks: Map<Int, Stack<Char>>) {
             for(i in 1..amount) {
                 val c = cargoStacks[from]!!.pop()
@@ -16,23 +16,44 @@ object Day05 {
             }
         }
     }
+    data class MoveCommandCM9001(val amount: Int, val from: Int, val to: Int) : Command {
+        override fun execute(cargoStacks: Map<Int, Stack<Char>>) {
+            val payload = (1..amount).map { cargoStacks[from]!!.pop() }.reversed()
+            payload.forEach { cargoStacks[to]!!.push(it) }
+        }
+    }
 
-    fun parse(url: URL): Pair<Map<Int, Stack<Char>>, List<Command>> {
+    interface Crane {
+        fun prepareCommand(amount: Int, from: Int, to: Int): Command
+    }
+
+    class CrateMover9000 : Crane {
+        override fun prepareCommand(amount: Int, from: Int, to: Int): Command {
+            return MoveCommandCM9000(amount, from, to)
+        }
+    }
+    class CrateMover9001 : Crane {
+        override fun prepareCommand(amount: Int, from: Int, to: Int): Command {
+            return MoveCommandCM9001(amount, from, to)
+        }
+    }
+
+    fun parse(url: URL, crane: Crane = CrateMover9000()): Pair<Map<Int, Stack<Char>>, List<Command>> {
         val text = File(url.toURI()).readText()
         val (stackInput, commandsInput) = text.split("\n\n", limit = 2)
 
         val stacks = parseStacks(stackInput)
-        val commands = parseCommands(commandsInput)
+        val commands = parseCommands(commandsInput, crane)
         return Pair(stacks, commands)
     }
 
-    private fun parseCommands(commands: String): List<Command> {
+    private fun parseCommands(commands: String, crane: Crane): List<Command> {
         val regexCmd = "move ([0-9]+) from ([0-9]+) to ([0-9]+)".toRegex()
         return commands.trim()
             .split("\n")
             .mapNotNull { regexCmd.find(it) }
             .map { it.groupValues }
-            .map { MoveCommand(it[1].toInt(), it[2].toInt(), it[3].toInt()) }
+            .map { crane.prepareCommand(it[1].toInt(), it[2].toInt(), it[3].toInt()) }
     }
 
     private fun parseStacks(map: String): Map<Int, Stack<Char>> {

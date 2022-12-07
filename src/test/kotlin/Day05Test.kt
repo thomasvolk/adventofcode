@@ -14,6 +14,12 @@ class Day05Test {
         commands.forEach { it.execute(cargoStacks) }
         assertEquals("CFFHVVHNC", peek(cargoStacks))
     }
+    @Test
+    fun testDay05part2() {
+        val (cargoStacks, commands) = Day05.parse(inputFile, Day05.CrateMover9001())
+        commands.forEach { it.execute(cargoStacks) }
+        assertEquals("FSZWBPTBG", peek(cargoStacks))
+    }
 
     private fun peek(cargoStacks: Map<Int, Stack<Char>>) =
         cargoStacks.map { (i, s) -> s.peek() }.joinToString("")
