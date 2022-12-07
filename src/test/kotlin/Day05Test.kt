@@ -22,5 +22,5 @@ class Day05Test {
     }
 
     private fun peek(cargoStacks: Map<Int, Stack<Char>>) =
-        cargoStacks.map { (i, s) -> s.peek() }.joinToString("")
+        cargoStacks.map { (_, s) -> s.peek() }.joinToString("")
 }
