@@ -42,7 +42,6 @@ object Day05 {
             .mapIndexed { i, c -> i to c }
             .filter { it.second != ' ' }
             .associate { it }
-        println(stackPositions)
         val regexCargo = "[A-Z]".toRegex()
         val stacks = stackPositions
             .map { (pos, name) ->
@@ -50,7 +49,9 @@ object Day05 {
                 stack.addAll(mapLines
                     .filter { it.length > pos }
                     .map { it[pos] }
-                    .filter { regexCargo.matches(it.toString()) })
+                    .filter { regexCargo.matches(it.toString()) }
+                    .reversed()
+                )
                 name.toString().toInt() to stack
             }
             .associate { it }
