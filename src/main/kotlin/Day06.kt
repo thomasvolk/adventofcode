@@ -5,11 +5,11 @@ import java.net.URL
 
 object Day06 {
 
-    private fun findFirstMarker(input: List<Char>): Int {
+    private fun findFirstMarker(input: List<Char>, markerSize: Int): Int {
         for(p in 1..input.count()) {
             val dataReceived = input.slice(0 until p)
-            if(dataReceived.count() > 3) {
-                val possibleMarker = dataReceived.slice(p-4 until p)
+            if(dataReceived.count() > (markerSize-1)) {
+                val possibleMarker = dataReceived.slice(p-markerSize until p)
                 if(allDifferent(possibleMarker)) return p
             }
         }
@@ -20,12 +20,18 @@ object Day06 {
         return slice.groupBy { it }.count() == slice.count()
     }
 
-    fun firstMarkerPosition(input: String): Int {
-        return findFirstMarker(input.toList())
+    fun firstPacketMarkerPosition(input: String): Int {
+        return findFirstMarker(input.toList(), markerSize = 4)
     }
-
-    fun firstMarkerPosition(url: URL): Int {
+    fun firstPacketMarkerPosition(url: URL): Int {
         val text = File(url.toURI()).readText().trim()
-        return findFirstMarker(text.toList())
+        return firstPacketMarkerPosition(text)
+    }
+    fun firstMessageMarkerPosition(input: String): Int {
+        return findFirstMarker(input.toList(), markerSize = 14)
+    }
+    fun firstMessageMarkerPosition(url: URL): Int {
+        val text = File(url.toURI()).readText().trim()
+        return firstMessageMarkerPosition(text)
     }
 }
