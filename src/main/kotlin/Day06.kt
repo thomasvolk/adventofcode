@@ -1,16 +1,19 @@
 package net.t53k
 
+import java.io.File
+import java.net.URL
+
 object Day06 {
 
-    private fun findFirstMarker(current: List<Char>, position: Int = 1): Int {
-        if(current.count() < 5) {
-            return -1
+    private fun findFirstMarker(input: List<Char>): Int {
+        for(p in 1..input.count()) {
+            val dataReceived = input.slice(0 until p)
+            if(dataReceived.count() > 3) {
+                val possibleMarker = dataReceived.slice(p-4 until p)
+                if(allDifferent(possibleMarker)) return p
+            }
         }
-        val firstFour = current.slice(0..3)
-        if(allDifferent(firstFour)) {
-            return position + 4
-        }
-        return findFirstMarker(current.slice(position until current.count()), position + 1)
+        return -1
     }
 
     private fun allDifferent(slice: List<Char>): Boolean {
@@ -19,5 +22,10 @@ object Day06 {
 
     fun firstMarkerPosition(input: String): Int {
         return findFirstMarker(input.toList())
+    }
+
+    fun firstMarkerPosition(url: URL): Int {
+        val text = File(url.toURI()).readText().trim()
+        return findFirstMarker(text.toList())
     }
 }

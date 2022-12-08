@@ -14,5 +14,8 @@ class Day06Test {
         assertEquals(6, Day06.firstMarkerPosition("nppdvjthqldpwncqszvftbrmjlhg"))
         assertEquals(11, Day06.firstMarkerPosition("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"))
         assertEquals(10, Day06.firstMarkerPosition("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg"))
+
+
+        assertEquals(1953, Day06.firstMarkerPosition(inputFile))
     }
 }
