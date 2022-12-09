@@ -24,14 +24,10 @@ object Day09 {
             }
         }
     }
-    class Rope {
-        private var head: Position
-        private var tail: Position
+    class Rope(start: Position) {
+        private var head: Position = start
+        private var tail: Position = start
         private var tailHistory: Set<Position> = setOf()
-        constructor(start: Position) {
-            head = start
-            tail = start
-        }
 
         fun moveHead(direction: Direction, amount: Int) {
             println("$direction, $amount")
