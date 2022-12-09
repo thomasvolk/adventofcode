@@ -36,10 +36,17 @@ class Day08Test {
         val visibleTree = forest.findTree(2, 1)!!
         assertFalse(visibleTree.isInvisible())
         assertEquals(21, forest.allTrees().count { !it.isInvisible() })
+        val visibleTree2 = forest.findTree(3, 2)!!
+        assertEquals(8, visibleTree2.viewingDistanceScore() )
     }
     @Test
     fun testDay08Part1() {
         val forest = Day08.parse(inputFile)
         assertEquals(1763, forest.allTrees().count { !it.isInvisible() })
+    }
+    @Test
+    fun testDay08Part2() {
+        val forest = Day08.parse(inputFile)
+        assertEquals(671160, forest.allTrees().map { it.viewingDistanceScore() }.maxOf { it })
     }
 }

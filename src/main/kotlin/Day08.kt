@@ -24,6 +24,13 @@ object Day08 {
             )
         }
 
+        fun viewingDistanceScore(): Int {
+            return viewingDistanceScore(this, Direction.EAST, this.height) *
+                    viewingDistanceScore(this, Direction.WEST, this.height) *
+                    viewingDistanceScore(this, Direction.NORTH, this.height) *
+                    viewingDistanceScore(this, Direction.SOUTH, this.height)
+        }
+
         fun isInvisible(): Boolean {
             return isInvisible(Direction.EAST)
                     && isInvisible(Direction.NORTH)
@@ -40,6 +47,15 @@ object Day08 {
         }
 
         companion object {
+            fun viewingDistanceScore(tree: Tree, direction: Direction, height: Int, result:Int = 0): Int {
+                tree.neighbour(direction)?.let {
+                    if(it.height >= height) {
+                        return result + 1
+                    }
+                    return viewingDistanceScore(it, direction, height, result + 1)
+                }
+                return result
+            }
             fun allTreesInDirection(tree: Tree, direction: Direction, result: List<Tree> = listOf<Tree>()): List<Tree> {
                 tree.neighbour(direction)?.let {
                     return allTreesInDirection(it, direction, result + it)
