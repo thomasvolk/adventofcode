@@ -1,21 +1,22 @@
 package net.t53k
 
+import java.lang.RuntimeException
+
 object Day07 {
     interface Node {
         fun size(): Long
         fun name(): String
     }
-    private val regexCd = "\\$ cd (.+$)".toRegex()
-    private val regexDir = "dir (.+$)".toRegex()
-    private val regexFile = "([0-9]+) (.+$)".toRegex()
 
-    data class Dir(val name: String, val children: MutableList<Node>, val parent: Dir): Node {
+    data class Dir(val name: String) : Node {
+        val children = MutableList<Node>()
+        var parent: Dir? = null
         override fun size(): Long {
             return children.sumOf { it.size() }
         }
 
         override fun name(): String = name
-        fun moveUp(): Dir = parent
+        fun moveUp(): Dir? = parent
 
         fun moveDown(name: String): Dir {
             return children.filterIsInstance<Dir>().find { it.name() == name }!!
@@ -27,15 +28,43 @@ object Day07 {
         override fun name(): String = name
     }
 
-    private fun parse(input: List<String>): Node {
-        input.mapNotNull { regexCd.find(it) }.forEach { println(it.groupValues[1]) }
-        println("---------")
-        input.mapNotNull { regexDir.find(it) }.forEach { println(it.groupValues[1]) }
-        println("---------")
-        input.mapNotNull { regexFile.find(it) }.forEach { println(it.groupValues[2]) }
-        TODO("implement")
+    class Parser(
+        private val onCd: (Dir) -> Unit,
+        private val onDir: (Dir) -> Unit,
+        private val onFile: (File) -> Unit,
+        private val onLs: (() -> Unit)
+    ) {
+        private val regexCd = "\\$ cd (.+$)".toRegex()
+        private val regexDir = "dir (.+$)".toRegex()
+        private val regexFile = "([0-9]+) (.+$)".toRegex()
+        private val regexLs = "\\$ ls".toRegex()
+
+        private fun parse(line: String) {
+            val matchCd =  regexCd.find(line)
+            val matchDir = regexDir.find(line)
+            val matchFile = regexFile.find(line)
+            val matchLs = regexLs.find(line)
+            if(matchCd != null) {
+                onCd(Dir(matchCd.groupValues[0]))
+            }
+            else if(matchDir != null) {
+                onDir(Dir(matchDir.groupValues[0]))
+            }
+            else if(matchFile != null) {
+                onFile(File(matchFile.groupValues[0], matchFile.groupValues[0].toLong()))
+            }
+            else if(matchLs != null) {
+                onLs()
+            }
+            else {
+                throw RuntimeException("can not parse line $line")
+            }
+        }
     }
 
+    private fun parse(input: List<String>): Node {
+        TODO("Not yet implemented")
+    }
     fun parse(input: String): Node {
         return parse(input.split("\n"))
     }
