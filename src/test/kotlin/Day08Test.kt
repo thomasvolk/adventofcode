@@ -19,7 +19,7 @@ class Day08Test {
     @Test
     fun testParser() {
         val forest = Day08.parse(testData.split("\n"))
-        assertEquals(5, forest.rowCount)
-        assertEquals(5, forest.colCount)
+        assertEquals(5, forest.rowCount())
+        assertEquals(5, forest.colCount())
     }
 }
