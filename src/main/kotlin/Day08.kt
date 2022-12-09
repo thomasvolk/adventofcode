@@ -24,10 +24,11 @@ object Day08 {
         }
     }
     class Forest {
-        private lateinit var trees: List<List<Tree>>
+        private val trees: List<List<Tree>>
+        private val colCount: Int
         constructor(rows: List<String>) {
             trees = rows.map { it.toList().map(Character::getNumericValue) .map{ h -> Tree(h) }}
-            val colCount = colCount()
+            colCount = trees.first().count()
             trees.forEach { r ->
                 if(r.count() != colCount) {
                     throw IllegalStateException("inconsistent column count: $colCount != ${r.count()}")
@@ -42,8 +43,10 @@ object Day08 {
                 }
             }
         }
-        fun colCount() = trees.first().count()
+        fun colCount() = colCount
         fun rowCount() = trees.count()
+
+        fun count() = rowCount() * colCount()
 
         fun findTree(row: Int, col: Int): Tree? {
             if(row >= 0 && row < rowCount() && col >= 0 && col < colCount()) {
