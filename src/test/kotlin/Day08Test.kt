@@ -26,5 +26,10 @@ class Day08Test {
         assertEquals(9, tree.height)
         assertEquals(4, tree.neighbour(Day08.Direction.EAST)!!.height)
         assertEquals(0, tree.neighbour(Day08.Direction.SOUTH)!!.height)
+
+        val invisibleTree = forest.findTree(1, 3)!!
+        assertEquals(0, invisibleTree.allTreesInAllDirections().filter { it.height < invisibleTree.height }.count())
+        val visibleTree = forest.findTree(2, 1)!!
+        assertEquals(5, visibleTree.allTreesInAllDirections().filter { it.height < visibleTree.height }.count())
     }
 }

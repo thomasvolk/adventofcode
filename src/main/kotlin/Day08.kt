@@ -14,10 +14,17 @@ object Day08 {
             }
         }
 
+        fun allTreesInAllDirections(): List<Tree> {
+            return allTreesInDirection(this, Direction.EAST) +
+                    allTreesInDirection(this, Direction.WEST) +
+                    allTreesInDirection(this, Direction.NORTH) +
+                    allTreesInDirection(this, Direction.SOUTH)
+        }
+
         companion object {
-            fun allInDirection(tree: Tree, direction: Direction, result: List<Tree> = listOf<Tree>()): List<Tree> {
+            fun allTreesInDirection(tree: Tree, direction: Direction, result: List<Tree> = listOf<Tree>()): List<Tree> {
                 tree.neighbour(direction)?.let {
-                    return allInDirection(it, direction, result + it)
+                    return allTreesInDirection(it, direction, result + it)
                 }
                 return result
             }
