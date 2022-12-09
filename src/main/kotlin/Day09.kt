@@ -41,6 +41,8 @@ object Day09 {
         fun execute(moves: List<Pair<Direction, Int>>) {
             moves.forEach { (d, a) -> moveHead(d, a) }
         }
+
+        fun tailHistory() = tailHistory
     }
 
     fun parse(lines: List<String>): List<Pair<Direction, Int>> {
