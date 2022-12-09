@@ -45,4 +45,19 @@ class Day07Test {
         val root = Day07.parse(inputFile)
         assertEquals(1491614, root.findAllDirectories().map { it.size() }.filter { it <= 100000 }.sum())
     }
+    @Test
+    fun testDay07part2() {
+        val root = Day07.parse(inputFile)
+        val totalDiskSpace = 70000000
+        val usedSpace = root.size()
+        val freeSpace = totalDiskSpace - usedSpace
+        val updateSize = 30000000
+        val neededSpaceForUpdate = updateSize - freeSpace
+        assertEquals(6090134, neededSpaceForUpdate)
+        val candidates = root.findAllDirectories()
+            .map { it.size() }
+            .filter { it >= neededSpaceForUpdate }
+            .sorted()
+        assertEquals(6400111, candidates.first())
+    }
 }
