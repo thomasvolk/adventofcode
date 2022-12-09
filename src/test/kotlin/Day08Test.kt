@@ -21,5 +21,9 @@ class Day08Test {
         val forest = Day08.parse(testData.split("\n"))
         assertEquals(5, forest.rowCount())
         assertEquals(5, forest.colCount())
+        val tree = forest.findTree(3, 4)!!
+        assertEquals(9, tree.height)
+        assertEquals(4, tree.east!!.height)
+        assertEquals(0, tree.south!!.height)
     }
 }
