@@ -15,9 +15,9 @@ object Day08 {
         }
 
         companion object {
-            fun allNeighboursOf(tree: Tree, direction: Direction, result: List<Tree> = listOf<Tree>()): List<Tree> {
+            fun allInDirection(tree: Tree, direction: Direction, result: List<Tree> = listOf<Tree>()): List<Tree> {
                 tree.neighbour(direction)?.let {
-                    return allNeighboursOf(it, direction, result + it)
+                    return allInDirection(it, direction, result + it)
                 }
                 return result
             }
