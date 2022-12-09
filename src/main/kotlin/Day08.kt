@@ -11,6 +11,12 @@ object Day08 {
         private lateinit var trees: List<List<Tree>>
         constructor(rows: List<String>) {
             trees = rows.map { it.toList().map(Character::getNumericValue) .map{ h -> Tree(h) }}
+            val colCount = colCount()
+            trees.forEach { r ->
+                if(r.count() != colCount) {
+                    throw IllegalStateException("inconsistent column count: $colCount != ${r.count()}")
+                }
+            }
             trees.forEachIndexed { row, cols ->
                 cols.forEachIndexed { col, tree ->
                     tree.east = findTree(row, col - 1)
