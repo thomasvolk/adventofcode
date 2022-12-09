@@ -1,11 +1,27 @@
 package net.t53k
 
 object Day08 {
-    class Tree(val height:Int) {
-        var west: Tree? = null
-        var north: Tree? = null
-        var east: Tree? = null
-        var south: Tree? = null
+    enum class Direction {
+        EAST, WEST, NORTH, SOUTH
+    }
+    class Tree(val height:Int, private val neighbours: MutableMap<Direction, Tree> = mutableMapOf()) {
+
+        fun neighbour(direction: Direction): Tree? = neighbours[direction]
+
+        fun neighbour(direction: Direction, tree: Tree?) {
+            tree?.let { t ->
+                neighbours[direction] = t
+            }
+        }
+
+        companion object {
+            fun allNeighboursOf(tree: Tree, direction: Direction, result: List<Tree> = listOf<Tree>()): List<Tree> {
+                tree.neighbour(direction)?.let {
+                    return allNeighboursOf(it, direction, result + it)
+                }
+                return result
+            }
+        }
     }
     class Forest {
         private lateinit var trees: List<List<Tree>>
@@ -19,10 +35,10 @@ object Day08 {
             }
             trees.forEachIndexed { row, cols ->
                 cols.forEachIndexed { col, tree ->
-                    tree.east = findTree(row, col - 1)
-                    tree.west = findTree(row, col + 1)
-                    tree.north = findTree(row - 1, col)
-                    tree.south = findTree(row + 1, col)
+                    tree.neighbour(Direction.EAST, findTree(row, col - 1))
+                    tree.neighbour(Direction.WEST, findTree(row, col + 1))
+                    tree.neighbour(Direction.NORTH, findTree(row - 1, col))
+                    tree.neighbour(Direction.SOUTH, findTree(row + 1, col))
                 }
             }
         }

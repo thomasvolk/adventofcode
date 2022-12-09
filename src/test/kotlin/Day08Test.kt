@@ -23,7 +23,7 @@ class Day08Test {
         assertEquals(5, forest.colCount())
         val tree = forest.findTree(3, 4)!!
         assertEquals(9, tree.height)
-        assertEquals(4, tree.east!!.height)
-        assertEquals(0, tree.south!!.height)
+        assertEquals(4, tree.neighbour(Day08.Direction.EAST)!!.height)
+        assertEquals(0, tree.neighbour(Day08.Direction.SOUTH)!!.height)
     }
 }
