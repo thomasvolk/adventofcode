@@ -2,6 +2,7 @@ package net.t53k
 
 import org.junit.jupiter.api.Test
 import java.net.URL
+import kotlin.test.assertEquals
 
 class Day09Test {
     private val inputFile: URL = Day01::class.java.getResource("/Day09-input.txt")!!
@@ -22,6 +23,6 @@ class Day09Test {
         val moves = Day09.parse(testData.split("\n"))
         val rope = Day09.rope(0,0)
         rope.execute(moves)
-
+        assertEquals(13, rope.tailHistory().count())
     }
 }

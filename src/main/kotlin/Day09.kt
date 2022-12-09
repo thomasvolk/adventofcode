@@ -27,7 +27,7 @@ object Day09 {
     class Rope {
         private var head: Position
         private var tail: Position
-        private var tailHistory: List<Position> = listOf()
+        private var tailHistory: Set<Position> = setOf()
         constructor(start: Position) {
             head = start
             tail = start
@@ -35,7 +35,7 @@ object Day09 {
 
         fun moveHead(direction: Direction, amount: Int) {
             println("$direction, $amount")
-            TODO("implement")
+            //TODO("implement")
         }
 
         fun execute(moves: List<Pair<Direction, Int>>) {
