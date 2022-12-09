@@ -1,6 +1,8 @@
 package net.t53k
 
+import java.io.File
 import java.lang.RuntimeException
+import java.net.URL
 
 object Day07 {
     interface Node {
@@ -9,17 +11,30 @@ object Day07 {
     }
 
     data class Dir(val name: String) : Node {
-        val children = MutableList<Node>()
+        private val files = mutableMapOf<String, File>()
+        private val dirs = mutableMapOf<String, Dir>()
         var parent: Dir? = null
         override fun size(): Long {
-            return children.sumOf { it.size() }
+            return files.values.sumOf { it.size() } + dirs.values.sumOf { it.size() }
+        }
+
+        fun addFile(f: File): File {
+            return files.getOrPut(f.name) { f }
+        }
+
+        fun addDir(d: Dir): Dir {
+            return dirs.getOrPut(d.name) { d }
         }
 
         override fun name(): String = name
         fun moveUp(): Dir? = parent
 
         fun moveDown(name: String): Dir {
-            return children.filterIsInstance<Dir>().find { it.name() == name }!!
+            return dirs[name]!!
+        }
+
+        fun findAllDirectories(): List<Dir> {
+            return listOf(this) + dirs.values.flatMap { it.findAllDirectories() }
         }
     }
 
@@ -29,29 +44,37 @@ object Day07 {
     }
 
     class Parser(
-        private val onCd: (Dir) -> Unit,
+        private val onCdDown: (Dir) -> Unit,
+        private val onCdUp: () -> Unit,
         private val onDir: (Dir) -> Unit,
         private val onFile: (File) -> Unit,
         private val onLs: (() -> Unit)
     ) {
-        private val regexCd = "\\$ cd (.+$)".toRegex()
+        private val regexCdDown = "\\$ cd (.+$)".toRegex()
+        private val regexCdUp = "\\$ cd \\.\\.".toRegex()
         private val regexDir = "dir (.+$)".toRegex()
         private val regexFile = "([0-9]+) (.+$)".toRegex()
         private val regexLs = "\\$ ls".toRegex()
+        var debug = false
 
-        private fun parse(line: String) {
-            val matchCd =  regexCd.find(line)
+        fun parse(line: String) {
+            val matchCdDown =  regexCdDown.find(line)
+            val matchCdUp =  regexCdUp.find(line)
             val matchDir = regexDir.find(line)
             val matchFile = regexFile.find(line)
             val matchLs = regexLs.find(line)
-            if(matchCd != null) {
-                onCd(Dir(matchCd.groupValues[0]))
+            if(debug) println(line)
+            if(matchCdUp != null) {
+                onCdUp()
+            }
+            else if(matchCdDown != null) {
+                onCdDown(Dir(matchCdDown.groupValues[1]))
             }
             else if(matchDir != null) {
-                onDir(Dir(matchDir.groupValues[0]))
+                onDir(Dir(matchDir.groupValues[1]))
             }
             else if(matchFile != null) {
-                onFile(File(matchFile.groupValues[0], matchFile.groupValues[0].toLong()))
+                onFile(File(matchFile.groupValues[2], matchFile.groupValues[1].toLong()))
             }
             else if(matchLs != null) {
                 onLs()
@@ -62,10 +85,36 @@ object Day07 {
         }
     }
 
-    private fun parse(input: List<String>): Node {
-        TODO("Not yet implemented")
+    private const val rootDirName = "/"
+
+    private fun parse(input: List<String>): Dir {
+        var root = Dir(rootDirName)
+        var wd = root
+        val parser = Parser(
+            { changeDirDown ->
+                if(changeDirDown.name != rootDirName) {
+                    val current  = wd.addDir(changeDirDown)
+                    current.parent = wd
+                    wd = current
+                }
+            },
+            { ->
+                wd = wd.parent!!
+            },
+            { dir -> wd.addDir(dir) },
+            { file -> wd.addFile(file) },
+            {}
+        )
+        input.forEach(parser::parse)
+        return root
     }
-    fun parse(input: String): Node {
+    fun parse(input: String): Dir {
         return parse(input.split("\n"))
+    }
+
+    fun parse(url: URL): Dir {
+        File(url.toURI()).useLines { lines ->
+            return parse(lines.toList())
+        }
     }
 }

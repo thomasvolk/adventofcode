@@ -2,6 +2,7 @@ package net.t53k
 
 import org.junit.jupiter.api.Test
 import java.net.URL
+import kotlin.test.assertEquals
 
 class Day07Test {
     private val inputFile: URL = Day01::class.java.getResource("/Day07-input.txt")!!
@@ -34,6 +35,14 @@ class Day07Test {
 
     @Test
     fun testParser() {
-        val node = Day07.parse(testData)
+        val root = Day07.parse(testData)
+        assertEquals("/, a, e, d", root.findAllDirectories().map { it.name }.joinToString())
+        assertEquals(95437, root.findAllDirectories().map { it.size() }.filter { it <= 100000 }.sum())
+    }
+
+    @Test
+    fun testDay07part1() {
+        val root = Day07.parse(inputFile)
+        assertEquals(1491614, root.findAllDirectories().map { it.size() }.filter { it <= 100000 }.sum())
     }
 }
