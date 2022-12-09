@@ -3,6 +3,8 @@ package net.t53k
 import org.junit.jupiter.api.Test
 import java.net.URL
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class Day08Test {
     private val inputFile: URL = Day01::class.java.getResource("/Day08-input.txt")!!
@@ -28,8 +30,16 @@ class Day08Test {
         assertEquals(0, tree.neighbour(Day08.Direction.SOUTH)!!.height)
 
         val invisibleTree = forest.findTree(1, 3)!!
-        assertEquals(0, invisibleTree.allTreesInAllDirections().filter { it.height < invisibleTree.height }.count())
+        assertTrue(invisibleTree.isInvisible())
+        val invisibleTree2 = forest.findTree(3, 3)!!
+        assertTrue(invisibleTree2.isInvisible())
         val visibleTree = forest.findTree(2, 1)!!
-        assertEquals(5, visibleTree.allTreesInAllDirections().filter { it.height < visibleTree.height }.count())
+        assertFalse(visibleTree.isInvisible())
+        assertEquals(21, forest.allTrees().count { !it.isInvisible() })
+    }
+    @Test
+    fun testDay08Part1() {
+        val forest = Day08.parse(inputFile)
+        assertEquals(1763, forest.allTrees().count { !it.isInvisible() })
     }
 }

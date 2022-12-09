@@ -1,5 +1,8 @@
 package net.t53k
 
+import java.io.File
+import java.net.URL
+
 object Day08 {
     enum class Direction {
         EAST, WEST, NORTH, SOUTH
@@ -14,11 +17,26 @@ object Day08 {
             }
         }
 
-        fun allTreesInAllDirections(): List<Tree> {
-            return allTreesInDirection(this, Direction.EAST) +
-                    allTreesInDirection(this, Direction.WEST) +
-                    allTreesInDirection(this, Direction.NORTH) +
-                    allTreesInDirection(this, Direction.SOUTH)
+        fun coordinates(): Pair<Int, Int> {
+            return Pair(
+                allTreesInDirection(this, Direction.NORTH).count(),
+                allTreesInDirection(this, Direction.EAST).count()
+            )
+        }
+
+        fun isInvisible(): Boolean {
+            return isInvisible(Direction.EAST)
+                    && isInvisible(Direction.NORTH)
+                    && isInvisible(Direction.WEST)
+                    && isInvisible(Direction.SOUTH)
+        }
+
+        fun isInvisible(direction: Direction): Boolean {
+            return allTreesInDirection(this, direction).count { other -> other.height >= this.height } > 0
+        }
+
+        override fun toString(): String {
+            return "Tree(height=$height, coordinates=${coordinates()})"
         }
 
         companion object {
@@ -55,6 +73,8 @@ object Day08 {
 
         fun count() = rowCount() * colCount()
 
+        fun allTrees(): List<Tree> = trees.flatten()
+
         fun findTree(row: Int, col: Int): Tree? {
             if(row >= 0 && row < rowCount() && col >= 0 && col < colCount()) {
                 return trees[row][col]
@@ -64,5 +84,11 @@ object Day08 {
     }
     fun parse(rows: List<String>): Forest {
         return Forest(rows)
+    }
+
+    fun parse(url: URL): Forest {
+        File(url.toURI()).useLines { lines ->
+            return parse(lines.toList())
+        }
     }
 }
