@@ -98,10 +98,20 @@ object Day09 {
             }
         }
     }
-    class Rope(start: Position) {
-        private var tail: Tail = Tail(start)
-        private var head: Head = Head(start, tail)
+    class Rope(start: Position, tailLength: Int = 1) {
+        private var tail: Tail
+        private var head: Head
         private var tailHistory: Set<Position> = setOf(start)
+
+        init {
+            if(tailLength < 1) throw IllegalArgumentException("tailLength must be >= 1")
+            tail = Tail(start)
+            var current = tail
+            for(i in 1 until tailLength) {
+              current = Tail(start, current)
+            }
+            head = Head(start, current)
+        }
 
         private fun moveHead(direction: Direction, amount: Int) {
             (1..amount).forEach { _ ->
