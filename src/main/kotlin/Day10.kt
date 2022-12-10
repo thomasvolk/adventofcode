@@ -5,14 +5,20 @@ import java.lang.IllegalArgumentException
 import java.net.URL
 
 object Day10 {
-    data class Register(var x: Int = 1)
+    data class Processor(var x: Int = 1) {
+        private var cycles: Int = 0
+        fun cycle() {
+            cycles += 1
+        }
+        fun cycles() = cycles
+    }
     interface Command {
-        fun execute(register: Register): Boolean
+        fun execute(processor: Processor)
     }
 
     class Noop: Command {
-        override fun execute(register: Register): Boolean {
-            return true
+        override fun execute(processor: Processor) {
+            processor.cycle()
         }
 
         override fun toString(): String {
@@ -22,14 +28,10 @@ object Day10 {
     }
 
     class AddX(private val value: Int): Command {
-        private var cyclesLeft = 2
-        override fun execute(register: Register): Boolean {
-            cyclesLeft -= 1
-            val complete =  cyclesLeft < 1
-            if(complete) {
-                register.x += value
-            }
-            return complete
+        override fun execute(processor: Processor) {
+            processor.cycle()
+            processor.cycle()
+            processor.x += value
         }
 
         override fun toString(): String {
@@ -38,20 +40,19 @@ object Day10 {
 
     }
 
-    fun parse(input: URL) {
-        File(input.toURI()).useLines { lines ->
-            val commands = lines.toList()
-                .map { command(it.trim()) }
-            println(commands)
-        }
-    }
-
     private fun command(line: String): Command {
         val parts = line.split(" ")
         return when(parts[0]) {
             "noop" -> Noop()
             "addx" -> AddX(parts[1].toInt())
             else -> throw IllegalArgumentException("unknown command line: $line")
+        }
+    }
+
+    fun parse(input: URL): List<Command> {
+        File(input.toURI()).useLines { lines ->
+            return lines.toList()
+                .map { command(it.trim()) }
         }
     }
 }

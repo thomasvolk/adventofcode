@@ -8,6 +8,10 @@ class Day10Test {
 
     @Test
     fun testDay10Part1() {
-        Day10.parse(inputFile)
+        val commands = Day10.parse(inputFile)
+        val processor = Day10.Processor()
+        commands.forEach { c -> c.execute(processor) }
+        println(processor.cycles())
+        println(processor.x)
     }
 }
