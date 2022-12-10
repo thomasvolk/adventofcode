@@ -38,6 +38,38 @@ object Day09 {
         }
     }
 
+    class Knot(var position: Position) {
+        fun move(direction: Direction) {
+            position = position.move(direction)
+        }
+
+        fun pullTowardTo(knot: Knot) {
+            val distance = position.distanceTo(knot.position)
+            if(distance.isNotNextToEachOther()) {
+                pullTowardTo(distance)
+            }
+        }
+
+        private fun pullTowardTo(distance: Distance) {
+            val minYXDistance =
+                if(distance.isDiagonally()) { 1 } else { 2 }
+            if(distance.deltaX.absoluteValue >= minYXDistance) {
+                position = if(distance.deltaX > 0) {
+                    position.move(Direction.RIGHT)
+                } else {
+                    position.move(Direction.LEFT)
+                }
+            }
+            if(distance.deltaY.absoluteValue >= minYXDistance) {
+                position = if(distance.deltaY > 0) {
+                    position.move(Direction.UP)
+                } else {
+                    position.move(Direction.DOWN)
+                }
+            }
+        }
+    }
+
     enum class Direction {
         UP, DOWN, LEFT, RIGHT;
         companion object {
@@ -56,36 +88,14 @@ object Day09 {
         }
     }
     class Rope(start: Position) {
-        private var head: Position = start
-        private var tail: Position = start
+        private var head: Knot = Knot(start)
+        private var tail: Knot = Knot(start)
         private var tailHistory: Set<Position> = setOf(start)
 
         fun moveHead(direction: Direction) {
-            head = head.move(direction)
-            val distance = tail.distanceTo(head)
-            if(distance.isNotNextToEachOther()) {
-                moveTail(distance)
-                tailHistory = tailHistory + tail
-            }
-        }
-
-        private fun moveTail(distance: Distance) {
-            val minYXDistance =
-                if(distance.isDiagonally()) { 1 } else { 2 }
-            if(distance.deltaX.absoluteValue >= minYXDistance) {
-                tail = if(distance.deltaX > 0) {
-                    tail.move(Direction.RIGHT)
-                } else {
-                    tail.move(Direction.LEFT)
-                }
-            }
-            if(distance.deltaY.absoluteValue >= minYXDistance) {
-                tail = if(distance.deltaY > 0) {
-                    tail.move(Direction.UP)
-                } else {
-                    tail.move(Direction.DOWN)
-                }
-            }
+            head.move(direction)
+            tail.pullTowardTo(head)
+            tailHistory = tailHistory + tail.position
         }
 
         fun moveHead(direction: Direction, amount: Int) {
