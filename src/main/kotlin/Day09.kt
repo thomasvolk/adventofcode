@@ -139,5 +139,5 @@ object Day09 {
         }
     }
 
-    fun rope(x: Int, y: Int): Rope = Rope(Position(x, y))
+    fun rope(x: Int, y: Int, tailLength: Int = 1): Rope = Rope(Position(x, y), tailLength)
 }

@@ -33,4 +33,12 @@ class Day09Test {
         rope.execute(moves)
         assertEquals(6642, rope.tailHistory().count())
     }
+
+    @Test
+    fun testDay09Part2() {
+        val moves = Day09.parse(inputFile)
+        val rope = Day09.rope(0,0, 9)
+        rope.execute(moves)
+        assertEquals(2765, rope.tailHistory().count())
+    }
 }
