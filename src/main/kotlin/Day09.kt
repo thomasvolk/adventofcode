@@ -8,7 +8,7 @@ import kotlin.math.absoluteValue
 object Day09 {
 
     data class Distance(val deltaX: Int, val deltaY: Int) {
-        fun isNextToEachOther(): Boolean {
+        private fun isNextToEachOther(): Boolean {
             return if(isDiagonally()) {
                 (deltaX.absoluteValue + deltaY.absoluteValue) == 2
             }
@@ -100,14 +100,12 @@ object Day09 {
         private var tail: Tail = Tail(start)
         private var tailHistory: Set<Position> = setOf(start)
 
-        fun moveHead(direction: Direction) {
-            head.move(direction)
-            tail.pullTowardTo(head)
-            tailHistory = tailHistory + tail.position
-        }
-
-        fun moveHead(direction: Direction, amount: Int) {
-            (1..amount).forEach { moveHead(direction) }
+        private fun moveHead(direction: Direction, amount: Int) {
+            (1..amount).forEach { _ ->
+                head.move(direction)
+                tail.pullTowardTo(head)
+                tailHistory = tailHistory + tail.position
+            }
         }
 
         fun execute(moves: List<Pair<Direction, Int>>) {
