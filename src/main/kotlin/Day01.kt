@@ -10,7 +10,7 @@ object Day01 {
 
     fun elfsFromURL(url: URL): List<Elf> {
         val text = File(url.toURI()).readText().trim()
-        return text.split("\n\n").map { Elf(it.split("\n").map { it.toInt() }) }
+        return text.split("\n\n").map { block -> Elf(block.split("\n").map { line -> line.toInt() }) }
     }
 
 

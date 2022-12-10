@@ -43,7 +43,7 @@ object Day03 {
 
     fun findGroupItem(rucksacks: List<Rucksack>): Char {
         val itemInRucksacks =  itemTypes.map { item ->
-            item to rucksacks.filter { r -> r.hasItem(item) }.count()
+            item to rucksacks.count { r -> r.hasItem(item) }
         }
         return itemInRucksacks
             .filter { it.second == rucksacks.count() }
