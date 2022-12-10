@@ -38,11 +38,19 @@ object Day09 {
         }
     }
 
-    class Knot(var position: Position) {
+    abstract class Knot(var position: Position) {
+    }
+
+    class Head(position: Position): Knot(position) {
         fun move(direction: Direction) {
             position = position.move(direction)
         }
+    }
 
+    class Tail(position: Position): Knot(position) {
+        private fun move(direction: Direction) {
+            position = position.move(direction)
+        }
         fun pullTowardTo(knot: Knot) {
             val distance = position.distanceTo(knot.position)
             if(distance.isNotNextToEachOther()) {
@@ -54,17 +62,17 @@ object Day09 {
             val minYXDistance =
                 if(distance.isDiagonally()) { 1 } else { 2 }
             if(distance.deltaX.absoluteValue >= minYXDistance) {
-                position = if(distance.deltaX > 0) {
-                    position.move(Direction.RIGHT)
+                if(distance.deltaX > 0) {
+                    move(Direction.RIGHT)
                 } else {
-                    position.move(Direction.LEFT)
+                    move(Direction.LEFT)
                 }
             }
             if(distance.deltaY.absoluteValue >= minYXDistance) {
-                position = if(distance.deltaY > 0) {
-                    position.move(Direction.UP)
+                if(distance.deltaY > 0) {
+                    move(Direction.UP)
                 } else {
-                    position.move(Direction.DOWN)
+                    move(Direction.DOWN)
                 }
             }
         }
@@ -88,8 +96,8 @@ object Day09 {
         }
     }
     class Rope(start: Position) {
-        private var head: Knot = Knot(start)
-        private var tail: Knot = Knot(start)
+        private var head: Head = Head(start)
+        private var tail: Tail = Tail(start)
         private var tailHistory: Set<Position> = setOf(start)
 
         fun moveHead(direction: Direction) {
