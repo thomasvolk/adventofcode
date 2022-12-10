@@ -27,11 +27,6 @@ object Day07 {
         }
 
         override fun name(): String = name
-        fun moveUp(): Dir? = parent
-
-        fun moveDown(name: String): Dir {
-            return dirs[name]!!
-        }
 
         fun findAllDirectories(): List<Dir> {
             return listOf(this) + dirs.values.flatMap { it.findAllDirectories() }
@@ -55,7 +50,6 @@ object Day07 {
         private val regexDir = "dir (.+$)".toRegex()
         private val regexFile = "([0-9]+) (.+$)".toRegex()
         private val regexLs = "\\$ ls".toRegex()
-        var debug = false
 
         fun parse(line: String) {
             val matchCdDown =  regexCdDown.find(line)
@@ -63,7 +57,6 @@ object Day07 {
             val matchDir = regexDir.find(line)
             val matchFile = regexFile.find(line)
             val matchLs = regexLs.find(line)
-            if(debug) println(line)
             if(matchCdUp != null) {
                 onCdUp()
             }
@@ -88,7 +81,7 @@ object Day07 {
     private const val rootDirName = "/"
 
     private fun parse(input: List<String>): Dir {
-        var root = Dir(rootDirName)
+        val root = Dir(rootDirName)
         var wd = root
         val parser = Parser(
             { changeDirDown ->
@@ -98,7 +91,7 @@ object Day07 {
                     wd = current
                 }
             },
-            { ->
+            {
                 wd = wd.parent!!
             },
             { dir -> wd.addDir(dir) },

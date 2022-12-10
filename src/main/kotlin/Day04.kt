@@ -27,10 +27,10 @@ object Day04 {
     data class ElfPair(val sectionA: IntRange, val sectionB: IntRange) {
 
         fun sectionContaining(): Boolean {
-           return Day04.sectionContaining(sectionA, sectionB) || Day04.sectionContaining(sectionB, sectionA)
+           return sectionContaining(sectionA, sectionB) || sectionContaining(sectionB, sectionA)
         }
         fun sectionOverlapping(): Boolean {
-            return Day04.sectionOverlapping(sectionA, sectionB) || Day04.sectionOverlapping(sectionB, sectionA)
+            return sectionOverlapping(sectionA, sectionB) || sectionOverlapping(sectionB, sectionA)
         }
     }
     fun parse(url: URL): List<ElfPair> {

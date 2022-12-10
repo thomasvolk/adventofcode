@@ -17,7 +17,7 @@ object Day08 {
             }
         }
 
-        fun coordinates(): Pair<Int, Int> {
+        private fun coordinates(): Pair<Int, Int> {
             return Pair(
                 allTreesInDirection(this, Direction.NORTH).count(),
                 allTreesInDirection(this, Direction.EAST).count()
@@ -38,7 +38,7 @@ object Day08 {
                     && isInvisible(Direction.SOUTH)
         }
 
-        fun isInvisible(direction: Direction): Boolean {
+        private fun isInvisible(direction: Direction): Boolean {
             return allTreesInDirection(this, direction).count { other -> other.height >= this.height } > 0
         }
 
@@ -64,10 +64,10 @@ object Day08 {
             }
         }
     }
-    class Forest {
+    class Forest(rows: List<String>) {
         private val trees: List<List<Tree>>
         private val colCount: Int
-        constructor(rows: List<String>) {
+        init {
             trees = rows.map { it.toList().map(Character::getNumericValue) .map{ h -> Tree(h) }}
             colCount = trees.first().count()
             trees.forEach { r ->
