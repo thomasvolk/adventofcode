@@ -58,7 +58,7 @@ object Day09 {
             if(distance.isNotNextToEachOther()) {
                 pullToward(distance)
             }
-            next?.let {it.pullTowardTo(this) }
+            next?.pullTowardTo(this)
         }
 
         private fun pullToward(distance: Distance) {
