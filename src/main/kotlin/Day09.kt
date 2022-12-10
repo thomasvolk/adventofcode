@@ -2,7 +2,6 @@ package net.t53k
 
 import java.io.File
 import java.lang.IllegalArgumentException
-import java.lang.Math.abs
 import java.net.URL
 import kotlin.math.absoluteValue
 
