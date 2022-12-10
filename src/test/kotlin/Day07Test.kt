@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 class Day07Test {
     private val inputFile: URL = PuzzleInput.loadFile("/Day07-input.txt")
 
-    val testData = """
+    private val testData = """
         ${'$'} cd /
         ${'$'} ls
         dir a
@@ -36,7 +36,7 @@ class Day07Test {
     @Test
     fun testParser() {
         val root = Day07.parse(testData)
-        assertEquals("/, a, e, d", root.findAllDirectories().map { it.name }.joinToString())
+        assertEquals("/, a, e, d", root.findAllDirectories().joinToString { it.name })
         assertEquals(95437, root.findAllDirectories().map { it.size() }.filter { it <= 100000 }.sum())
     }
 

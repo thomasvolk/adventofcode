@@ -21,6 +21,6 @@ class Day01Test {
             .sortedByDescending { e -> e.calories() }
             .subList(0, 3)
         println(firstThreeElfsWithMostCalories)
-        assertEquals(209481, firstThreeElfsWithMostCalories.map {it.calories()}.sum())
+        assertEquals(209481, firstThreeElfsWithMostCalories.sumOf { it.calories() })
     }
 }

@@ -15,7 +15,7 @@ class Day02Test {
             Pair(Choice.PAPER, Choice.ROCK),
             Pair(Choice.SCISSORS, Choice.SCISSORS)
         )
-        assertEquals(15, pairs.map { Choice.score(it) }.sum())
+        assertEquals(15, pairs.sumOf { Choice.score(it) })
     }
 
     @Test

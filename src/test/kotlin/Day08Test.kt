@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 class Day08Test {
     private val inputFile: URL = PuzzleInput.loadFile("/Day08-input.txt")
 
-    val testData = """
+    private val testData = """
         30373
         25512
         65332
