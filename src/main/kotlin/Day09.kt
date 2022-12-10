@@ -2,10 +2,42 @@ package net.t53k
 
 import java.io.File
 import java.lang.IllegalArgumentException
+import java.lang.Math.abs
 import java.net.URL
+import kotlin.math.absoluteValue
 
 object Day09 {
-    data class Position(val x: Int, val y: Int)
+
+    data class Distance(val deltaX: Int, val deltaY: Int) {
+        fun isNextToEachOther(): Boolean {
+            return if(isDiagonally()) {
+                (deltaX.absoluteValue + deltaY.absoluteValue) == 2
+            }
+            else {
+                (deltaX.absoluteValue + deltaY.absoluteValue) <= 1
+            }
+        }
+
+        fun isDiagonally(): Boolean = deltaX != 0 && deltaY != 0
+
+        fun isNotNextToEachOther(): Boolean {
+           return !isNextToEachOther()
+        }
+    }
+    data class Position(val x: Int, val y: Int) {
+        fun distanceTo(other: Position): Distance {
+            return Distance(other.x - x, other.y - y)
+        }
+
+        fun move(direction: Direction): Position {
+            return when(direction) {
+                Direction.UP ->  this.copy(y = y + 1)
+                Direction.DOWN ->  this.copy(y = y - 1)
+                Direction.RIGHT ->  this.copy(x = x + 1)
+                Direction.LEFT ->  this.copy(x = x - 1)
+            }
+        }
+    }
 
     enum class Direction {
         UP, DOWN, LEFT, RIGHT;
@@ -27,11 +59,38 @@ object Day09 {
     class Rope(start: Position) {
         private var head: Position = start
         private var tail: Position = start
-        private var tailHistory: Set<Position> = setOf()
+        private var tailHistory: Set<Position> = setOf(start)
+
+        fun moveHead(direction: Direction) {
+            head = head.move(direction)
+            val distance = tail.distanceTo(head)
+            if(distance.isNotNextToEachOther()) {
+                moveTail(distance)
+                tailHistory = tailHistory + tail
+            }
+        }
+
+        private fun moveTail(distance: Distance) {
+            val minYXDistance =
+                if(distance.isDiagonally()) { 1 } else { 2 }
+            if(distance.deltaX.absoluteValue >= minYXDistance) {
+                tail = if(distance.deltaX > 0) {
+                    tail.move(Direction.RIGHT)
+                } else {
+                    tail.move(Direction.LEFT)
+                }
+            }
+            if(distance.deltaY.absoluteValue >= minYXDistance) {
+                tail = if(distance.deltaY > 0) {
+                    tail.move(Direction.UP)
+                } else {
+                    tail.move(Direction.DOWN)
+                }
+            }
+        }
 
         fun moveHead(direction: Direction, amount: Int) {
-            println("$direction, $amount")
-            //TODO("implement")
+            (1..amount).forEach { moveHead(direction) }
         }
 
         fun execute(moves: List<Pair<Direction, Int>>) {
