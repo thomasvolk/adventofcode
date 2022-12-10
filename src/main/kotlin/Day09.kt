@@ -38,21 +38,23 @@ object Day09 {
         }
     }
 
-    abstract class Knot(var position: Position) {
+    abstract class Knot(var position: Position, var next: Knot?) {
+        fun position(): Position = position
+        fun next(): Knot? = next
     }
 
-    class Head(position: Position): Knot(position) {
+    class Head(position: Position, next: Knot): Knot(position, next) {
         fun move(direction: Direction) {
             position = position.move(direction)
         }
     }
 
-    class Tail(position: Position): Knot(position) {
+    class Tail(position: Position): Knot(position, null) {
         private fun move(direction: Direction) {
             position = position.move(direction)
         }
         fun pullTowardTo(knot: Knot) {
-            val distance = position.distanceTo(knot.position)
+            val distance = position.distanceTo(knot.position())
             if(distance.isNotNextToEachOther()) {
                 pullToward(distance)
             }
@@ -96,8 +98,8 @@ object Day09 {
         }
     }
     class Rope(start: Position) {
-        private var head: Head = Head(start)
         private var tail: Tail = Tail(start)
+        private var head: Head = Head(start, tail)
         private var tailHistory: Set<Position> = setOf(start)
 
         private fun moveHead(direction: Direction, amount: Int) {
