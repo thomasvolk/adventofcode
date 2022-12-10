@@ -5,7 +5,7 @@ import java.net.URL
 import kotlin.test.assertEquals
 
 class Day07Test {
-    private val inputFile: URL = Day01::class.java.getResource("/Day07-input.txt")!!
+    private val inputFile: URL = PuzzleInput.loadFile("/Day07-input.txt")
 
     val testData = """
         ${'$'} cd /

@@ -7,7 +7,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class Day08Test {
-    private val inputFile: URL = Day01::class.java.getResource("/Day08-input.txt")!!
+    private val inputFile: URL = PuzzleInput.loadFile("/Day08-input.txt")
 
     val testData = """
         30373

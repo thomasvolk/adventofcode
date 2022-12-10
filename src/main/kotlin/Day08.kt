@@ -56,7 +56,7 @@ object Day08 {
                 }
                 return result
             }
-            fun allTreesInDirection(tree: Tree, direction: Direction, result: List<Tree> = listOf<Tree>()): List<Tree> {
+            fun allTreesInDirection(tree: Tree, direction: Direction, result: List<Tree> = listOf()): List<Tree> {
                 tree.neighbour(direction)?.let {
                     return allTreesInDirection(it, direction, result + it)
                 }

@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 import net.t53k.Day02.Choice
 
 class Day02Test {
-    private val inputFile: URL = Day01::class.java.getResource("/Day02-input.txt")!!
+    private val inputFile: URL = PuzzleInput.loadFile("/Day02-input.txt")
 
     @Test
     fun testPair() {
