@@ -54,11 +54,11 @@ object Day09 {
         fun pullTowardTo(knot: Knot) {
             val distance = position.distanceTo(knot.position)
             if(distance.isNotNextToEachOther()) {
-                pullTowardTo(distance)
+                pullToward(distance)
             }
         }
 
-        private fun pullTowardTo(distance: Distance) {
+        private fun pullToward(distance: Distance) {
             val minYXDistance =
                 if(distance.isDiagonally()) { 1 } else { 2 }
             if(distance.deltaX.absoluteValue >= minYXDistance) {
