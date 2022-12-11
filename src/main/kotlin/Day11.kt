@@ -4,37 +4,37 @@ import java.math.BigInteger
 
 object Day11 {
     interface Operand {
-        fun value(context: Long): Long
+        fun value(context: BigInteger): BigInteger
 
         companion object {
             fun parse(input: String): Operand {
-                return if(input == "old") Old() else Constant(input.toLong())
+                return if(input == "old") Old() else Constant(BigInteger.valueOf(input.toLong()))
             }
         }
     }
     class Old: Operand {
-        override fun value(context: Long): Long {
+        override fun value(context: BigInteger): BigInteger {
             return context
         }
     }
-    class Constant(val value: Long): Operand {
-        override fun value(context: Long): Long {
+    class Constant(val value: BigInteger): Operand {
+        override fun value(context: BigInteger): BigInteger {
             return value
         }
     }
 
     enum class Operator {
         PLUS {
-            override fun execute(left: Long, right: Long): Long {
+            override fun execute(left: BigInteger, right: BigInteger): BigInteger {
                 return left + right
             }
         },
         MULTIPLY {
-            override fun execute(left: Long, right: Long): Long {
+            override fun execute(left: BigInteger, right: BigInteger): BigInteger {
                 return left * right
             }
         };
-        abstract fun execute(left: Long, right: Long): Long
+        abstract fun execute(left: BigInteger, right: BigInteger): BigInteger
 
         companion object {
             fun parse(input: String): Operator {
@@ -44,7 +44,7 @@ object Day11 {
     }
 
     class Operation(val left: Operand, val operator: Operator, val right: Operand) {
-        fun execute(context: Long): Long {
+        fun execute(context: BigInteger): BigInteger {
             return operator.execute(left.value(context), right.value(context))
         }
 
@@ -63,7 +63,7 @@ object Day11 {
 
     class KeepAwayGame(val monkeys: List<Monkey>) {
         private val monkeyMap = monkeys.associateBy { it.id }
-        fun throwItem(item: Long, to: Int) {
+        fun throwItem(item: BigInteger, to: Int) {
             monkeyMap.get(to)?.receiveItem(item)
         }
 
@@ -73,19 +73,19 @@ object Day11 {
     }
     class Monkey(
         val id: Int,
-        inItems: List<Long>,
+        inItems: List<BigInteger>,
         private val operation: Operation,
-        private val testDivisibleBy: Long,
+        private val testDivisibleBy: BigInteger,
         private val targetMonkeyIfTestTrue: Int,
         private val targetMonkeyIfTestFalse: Int,
-        private val damageLevelDivisor: Long
+        private val damageLevelDivisor: BigInteger
     ) {
         private val items = inItems.toMutableList()
         private var itemsInspected: BigInteger = BigInteger.ZERO
         fun round(game: KeepAwayGame) {
             items.forEach {currentLevel ->
                 val newWorryLevel = operation.execute(currentLevel) / damageLevelDivisor
-                val divisible = (newWorryLevel % testDivisibleBy) == 0L
+                val divisible = (newWorryLevel % testDivisibleBy) == BigInteger.ZERO
                 if(divisible) {
                     game.throwItem(newWorryLevel, targetMonkeyIfTestTrue)
                 }
@@ -99,7 +99,7 @@ object Day11 {
 
         fun itemsInspected() = itemsInspected
 
-        fun receiveItem(item: Long) {
+        fun receiveItem(item: BigInteger) {
             items.add(item)
         }
 
@@ -110,7 +110,7 @@ object Day11 {
             private val testRe          = "\\s\\sTest: divisible by ([0-9]+)".toRegex()
             private val ifTrueRe        = "\\s\\s\\s\\sIf true: throw to monkey ([0-9]+)".toRegex()
             private val ifFalseRe       = "\\s\\s\\s\\sIf false: throw to monkey ([0-9]+)".toRegex()
-            private fun create(text: String, damageLevelDivisor: Long): Monkey {
+            private fun create(text: String, damageLevelDivisor: BigInteger): Monkey {
                 val lines = text.trim().split("\n")
                 var line = 0
                 monkeyStartRe.find(lines[line])?.let { start ->
@@ -129,9 +129,9 @@ object Day11 {
                                             items.groupValues[1]
                                                 .split(",")
                                                 .map { it.trim() }
-                                                .map { it.toLong() },
+                                                .map { BigInteger.valueOf(it.toLong()) },
                                             Operation.parse(operation.groupValues[1]),
-                                            test.groupValues[1].toLong(),
+                                            BigInteger.valueOf(test.groupValues[1].toLong()),
                                             ifTrue.groupValues[1].toInt(),
                                             ifFalse.groupValues[1].toInt(),
                                             damageLevelDivisor
@@ -154,7 +154,7 @@ object Day11 {
                 throw IllegalArgumentException("error parsing line $line: '${lines[line]}'")
             }
 
-            fun parse(input: String, damageLevelDivisor: Long): List<Monkey> {
+            fun parse(input: String, damageLevelDivisor: BigInteger): List<Monkey> {
                 return input.split("\n\n").map { create(it, damageLevelDivisor) }
             }
         }
