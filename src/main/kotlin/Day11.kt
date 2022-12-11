@@ -1,38 +1,40 @@
 package net.t53k
 
+import java.math.BigInteger
+
 object Day11 {
     interface Operand {
-        fun value(context: Int): Int
+        fun value(context: Long): Long
 
         companion object {
             fun parse(input: String): Operand {
-                return if(input == "old") Old() else Constant(input.toInt())
+                return if(input == "old") Old() else Constant(input.toLong())
             }
         }
     }
     class Old: Operand {
-        override fun value(context: Int): Int {
+        override fun value(context: Long): Long {
             return context
         }
     }
-    class Constant(val value: Int): Operand {
-        override fun value(context: Int): Int {
+    class Constant(val value: Long): Operand {
+        override fun value(context: Long): Long {
             return value
         }
     }
 
     enum class Operator {
         PLUS {
-            override fun execute(left: Int, right: Int): Int {
+            override fun execute(left: Long, right: Long): Long {
                 return left + right
             }
         },
         MULTIPLY {
-            override fun execute(left: Int, right: Int): Int {
+            override fun execute(left: Long, right: Long): Long {
                 return left * right
             }
         };
-        abstract fun execute(left: Int, right: Int): Int
+        abstract fun execute(left: Long, right: Long): Long
 
         companion object {
             fun parse(input: String): Operator {
@@ -42,7 +44,7 @@ object Day11 {
     }
 
     class Operation(val left: Operand, val operator: Operator, val right: Operand) {
-        fun execute(context: Int): Int {
+        fun execute(context: Long): Long {
             return operator.execute(left.value(context), right.value(context))
         }
 
@@ -61,7 +63,7 @@ object Day11 {
 
     class KeepAwayGame(val monkeys: List<Monkey>) {
         private val monkeyMap = monkeys.associateBy { it.id }
-        fun throwItem(item: Int, to: Int) {
+        fun throwItem(item: Long, to: Int) {
             monkeyMap.get(to)?.receiveItem(item)
         }
 
@@ -71,18 +73,19 @@ object Day11 {
     }
     class Monkey(
         val id: Int,
-        inItems: List<Int>,
+        inItems: List<Long>,
         private val operation: Operation,
-        private val testDivisibleBy: Int,
+        private val testDivisibleBy: Long,
         private val targetMonkeyIfTestTrue: Int,
-        private val targetMonkeyIfTestFalse: Int
+        private val targetMonkeyIfTestFalse: Int,
+        private val damageLevelDivisor: Long
     ) {
         private val items = inItems.toMutableList()
-        private var itemsInspected = 0
+        private var itemsInspected: BigInteger = BigInteger.ZERO
         fun round(game: KeepAwayGame) {
             items.forEach {currentLevel ->
-                val newWorryLevel = (operation.execute(currentLevel) / 3).toInt()
-                val divisible = (newWorryLevel % testDivisibleBy) == 0
+                val newWorryLevel = operation.execute(currentLevel) / damageLevelDivisor
+                val divisible = (newWorryLevel % testDivisibleBy) == 0L
                 if(divisible) {
                     game.throwItem(newWorryLevel, targetMonkeyIfTestTrue)
                 }
@@ -90,13 +93,13 @@ object Day11 {
                     game.throwItem(newWorryLevel, targetMonkeyIfTestFalse)
                 }
             }
-            itemsInspected += items.count()
+            itemsInspected = itemsInspected + BigInteger.valueOf(items.count().toLong())
             items.clear()
         }
 
         fun itemsInspected() = itemsInspected
 
-        fun receiveItem(item: Int) {
+        fun receiveItem(item: Long) {
             items.add(item)
         }
 
@@ -107,7 +110,7 @@ object Day11 {
             private val testRe          = "\\s\\sTest: divisible by ([0-9]+)".toRegex()
             private val ifTrueRe        = "\\s\\s\\s\\sIf true: throw to monkey ([0-9]+)".toRegex()
             private val ifFalseRe       = "\\s\\s\\s\\sIf false: throw to monkey ([0-9]+)".toRegex()
-            private fun create(text: String): Monkey {
+            private fun create(text: String, damageLevelDivisor: Long): Monkey {
                 val lines = text.trim().split("\n")
                 var line = 0
                 monkeyStartRe.find(lines[line])?.let { start ->
@@ -126,11 +129,12 @@ object Day11 {
                                             items.groupValues[1]
                                                 .split(",")
                                                 .map { it.trim() }
-                                                .map { it.toInt() },
+                                                .map { it.toLong() },
                                             Operation.parse(operation.groupValues[1]),
-                                            test.groupValues[1].toInt(),
+                                            test.groupValues[1].toLong(),
                                             ifTrue.groupValues[1].toInt(),
-                                            ifFalse.groupValues[1].toInt()
+                                            ifFalse.groupValues[1].toInt(),
+                                            damageLevelDivisor
                                        )
                                     }
                                     throwError(line, lines)
@@ -150,8 +154,8 @@ object Day11 {
                 throw IllegalArgumentException("error parsing line $line: '${lines[line]}'")
             }
 
-            fun parse(input: String): List<Monkey> {
-                return input.split("\n\n").map { Monkey.create(it) }
+            fun parse(input: String, damageLevelDivisor: Long): List<Monkey> {
+                return input.split("\n\n").map { create(it, damageLevelDivisor) }
             }
         }
     }
