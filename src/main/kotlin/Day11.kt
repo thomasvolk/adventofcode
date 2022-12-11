@@ -58,15 +58,44 @@ object Day11 {
             }
         }
     }
+
+    class KeepAwayGame(val monkeys: List<Monkey>) {
+        private val monkeyMap = monkeys.associateBy { it.id }
+        fun throwItem(item: Int, to: Int) {
+            monkeyMap.get(to)?.receiveItem(item)
+        }
+
+        fun round() {
+            monkeys.forEach { it.round(this) }
+        }
+    }
     class Monkey(
         val id: Int,
-        var items: List<Int> = listOf(),
-        val operation: Operation,
-        val testDivisibleBy: Int,
-        val targetMonkeyIfTestTrue: Int,
-        val targetMonkeyIfTestFalse: Int
-
+        inItems: List<Int>,
+        private val operation: Operation,
+        private val testDivisibleBy: Int,
+        private val targetMonkeyIfTestTrue: Int,
+        private val targetMonkeyIfTestFalse: Int
     ) {
+        private val items = inItems.toMutableList()
+        fun round(game: KeepAwayGame) {
+            items.forEach {currentLevel ->
+                val newWorryLevel = (operation.execute(currentLevel) / 3).toInt()
+                val divisible = (newWorryLevel % testDivisibleBy) == 0
+                if(divisible) {
+                    game.throwItem(newWorryLevel, targetMonkeyIfTestTrue)
+                }
+                else {
+                    game.throwItem(newWorryLevel, targetMonkeyIfTestFalse)
+                }
+            }
+            items.clear()
+        }
+
+        fun receiveItem(item: Int) {
+            items.add(item)
+        }
+
         companion object {
             private val monkeyStartRe   = "Monkey ([0-9]+):".toRegex()
             private val startingItemsRe = "\\s\\sStarting items: ([0-9\\, ]+)".toRegex()

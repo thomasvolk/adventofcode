@@ -10,5 +10,7 @@ class Day11Test {
     fun testDay11Part1() {
         val monkeys = Day11.Monkey.parse(inputFile.readText())
         assertEquals(8, monkeys.count())
+        val game = Day11.KeepAwayGame(monkeys)
+        game.round()
     }
 }

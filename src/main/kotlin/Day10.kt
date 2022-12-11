@@ -22,9 +22,8 @@ object Day10 {
     class CathodeRayTube(
         private val width: Int = 40,
         private val height: Int = 6,
-        private val spriteWidth: Int = 3
     ): Device {
-        private val display = MutableList<MutableList<Char>>(6) { y -> MutableList(40) { x -> '.'} }
+        private val display = MutableList(6) { _ -> MutableList(40) { _ -> '.'} }
         override fun call(cycle: Int, x: Int) {
             val (cursorX, cursorY) = calculatePosition(cycle - 1)
             val (spriteX, _) = calculatePosition(x)
@@ -35,7 +34,7 @@ object Day10 {
 
         private fun calculatePosition(x: Int): Pair<Int, Int> {
             val rayPosition = x % (width*height)
-            val row = (rayPosition / width).toInt()
+            val row = (rayPosition / width)
             val col = rayPosition % width
             return Pair(col, row)
         }
@@ -49,7 +48,6 @@ object Day10 {
             cycles += 1
             dataBuss.call(cycles, x)
         }
-        fun cycles() = cycles
     }
     interface Command {
         fun execute(processor: Processor)
