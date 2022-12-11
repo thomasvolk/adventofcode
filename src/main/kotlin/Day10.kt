@@ -5,11 +5,25 @@ import java.lang.IllegalArgumentException
 import java.net.URL
 
 object Day10 {
-    data class Processor(var x: Int = 1, val monitor: (Int, Int) -> Unit) {
+    class DataBus(private var devices: List<Device> = listOf()) {
+        fun registerDevice(device: Device) {
+            devices = devices + device
+        }
+
+        fun call(cycle:Int, x: Int) {
+            devices.forEach { it.call(cycle, x) }
+        }
+    }
+
+    fun interface Device {
+        fun call(cycle:Int, x: Int)
+    }
+
+    data class Processor(var x: Int = 1, val dataBuss: DataBus = DataBus()) {
         private var cycles: Int = 0
         fun cycle() {
             cycles += 1
-            monitor(cycles, x)
+            dataBuss.call(cycles, x)
         }
         fun cycles() = cycles
     }
