@@ -27,4 +27,47 @@ class Day10Test {
         commands.forEach { c -> c.execute(processor) }
         assertEquals(14320, result)
     }
+
+    @Test
+    fun testSprite() {
+        val screen = Day10.CathodeRayTube()
+        assertEquals("""
+            ........................................
+            ........................................
+            ........................................
+            ........................................
+            ........................................
+            ........................................
+        """.trimIndent(), screen.display())
+        val processor = Day10.Processor()
+        processor.dataBuss.registerDevice(screen)
+        processor.cycle()
+        processor.cycle()
+        processor.cycle()
+        assertEquals("""
+            ###.....................................
+            ........................................
+            ........................................
+            ........................................
+            ........................................
+            ........................................
+        """.trimIndent(), screen.display())
+    }
+    @Test
+    fun testDay10Part2() {
+        val commands = Day10.parse(inputFile)
+        val processor = Day10.Processor()
+        val screen = Day10.CathodeRayTube()
+        processor.dataBuss.registerDevice(screen)
+        commands.forEach { c -> c.execute(processor) }
+        // PCPBKAPJ
+        assertEquals("""
+            ###...##..###..###..#..#..##..###....##.
+            #..#.#..#.#..#.#..#.#.#..#..#.#..#....#.
+            #..#.#....#..#.###..##...#..#.#..#....#.
+            ###..#....###..#..#.#.#..####.###.....#.
+            #....#..#.#....#..#.#.#..#..#.#....#..#.
+            #.....##..#....###..#..#.#..#.#.....##..
+        """.trimIndent(), screen.display())
+    }
 }

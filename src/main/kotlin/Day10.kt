@@ -19,6 +19,30 @@ object Day10 {
         fun call(cycle:Int, x: Int)
     }
 
+    class CathodeRayTube(
+        private val width: Int = 40,
+        private val height: Int = 6,
+        private val spriteWidth: Int = 3
+    ): Device {
+        private val display = MutableList<MutableList<Char>>(6) { y -> MutableList(40) { x -> '.'} }
+        override fun call(cycle: Int, x: Int) {
+            val (cursorX, cursorY) = calculatePosition(cycle - 1)
+            val (spriteX, _) = calculatePosition(x)
+            val spriteRange = listOf(spriteX - 1, spriteX, spriteX + 1).filter { it >= 0 || it < width }
+            val litPixel = spriteRange.contains(cursorX)
+            if(litPixel) display[cursorY][cursorX] = '#'
+        }
+
+        private fun calculatePosition(x: Int): Pair<Int, Int> {
+            val rayPosition = x % (width*height)
+            val row = (rayPosition / width).toInt()
+            val col = rayPosition % width
+            return Pair(col, row)
+        }
+
+        fun display(): String = display.joinToString("\n") { row -> row.joinToString("") }
+    }
+
     data class Processor(var x: Int = 1, val dataBuss: DataBus = DataBus()) {
         private var cycles: Int = 0
         fun cycle() {
