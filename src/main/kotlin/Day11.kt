@@ -78,6 +78,7 @@ object Day11 {
         private val targetMonkeyIfTestFalse: Int
     ) {
         private val items = inItems.toMutableList()
+        private var itemsInspected = 0
         fun round(game: KeepAwayGame) {
             items.forEach {currentLevel ->
                 val newWorryLevel = (operation.execute(currentLevel) / 3).toInt()
@@ -89,8 +90,11 @@ object Day11 {
                     game.throwItem(newWorryLevel, targetMonkeyIfTestFalse)
                 }
             }
+            itemsInspected += items.count()
             items.clear()
         }
+
+        fun itemsInspected() = itemsInspected
 
         fun receiveItem(item: Int) {
             items.add(item)

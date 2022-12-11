@@ -11,6 +11,8 @@ class Day11Test {
         val monkeys = Day11.Monkey.parse(inputFile.readText())
         assertEquals(8, monkeys.count())
         val game = Day11.KeepAwayGame(monkeys)
-        game.round()
+        (1..20).forEach{ game.round() }
+        val monkeyBusiness = monkeys.map { it.itemsInspected() }.sortedDescending().subList(0, 2).reduce { a, b -> a * b}
+        assertEquals(117640, monkeyBusiness)
     }
 }
