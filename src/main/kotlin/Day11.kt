@@ -63,8 +63,15 @@ object Day11 {
 
     class KeepAwayGame(val monkeys: List<Monkey>) {
         private val monkeyMap = monkeys.associateBy { it.id }
+        private val maxWorryLevel = monkeys.map { it.testDivisibleBy }.reduce{ a, b -> a * b } * BigInteger.TWO
         fun throwItem(item: BigInteger, to: Int) {
-            monkeyMap.get(to)?.receiveItem(item)
+            val compressedItem = if(item > maxWorryLevel) {
+                maxWorryLevel + (item % maxWorryLevel)
+            }
+            else {
+                item
+            }
+            monkeyMap.get(to)?.receiveItem(compressedItem)
         }
 
         fun round() {
@@ -75,7 +82,7 @@ object Day11 {
         val id: Int,
         inItems: List<BigInteger>,
         private val operation: Operation,
-        private val testDivisibleBy: BigInteger,
+        val testDivisibleBy: BigInteger,
         private val targetMonkeyIfTestTrue: Int,
         private val targetMonkeyIfTestFalse: Int,
         private val damageLevelDivisor: BigInteger

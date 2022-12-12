@@ -17,13 +17,13 @@ class Day11Test {
         assertEquals(BigInteger.valueOf(117640), monkeyBusiness)
     }
 
-    //@Test
+    @Test
     fun testDay11Part2() {
         val monkeys = Day11.Monkey.parse(inputFile.readText(), BigInteger.ONE)
         assertEquals(8, monkeys.count())
         val game = Day11.KeepAwayGame(monkeys)
         (1..10000).forEach{ game.round() }
         val monkeyBusiness = monkeys.map { it.itemsInspected() }.sortedDescending().subList(0, 2).reduce { a, b -> a * b}
-        assertEquals(BigInteger.valueOf(0), monkeyBusiness)
+        assertEquals(BigInteger.valueOf(30616425600), monkeyBusiness)
     }
 }
