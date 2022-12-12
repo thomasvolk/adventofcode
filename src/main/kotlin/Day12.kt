@@ -40,14 +40,17 @@ object Day12 {
             if(path.contains(this)) {
                 return emptyList()
             }
+
             val newPath = path + this
             if(end) {
                 return listOf(newPath)
             }
-            return neighbours.values
+
+            val candidates = neighbours.values
                 .filter { n -> (height + 1) >= n.height   }
-                .map { n -> n.findPaths(newPath) }
-                .filter { path -> path.isNotEmpty() }
+
+            return candidates.map { n -> n.findPaths(newPath) }
+                .filter { p -> p.isNotEmpty() }
                 .flatten()
         }
         override fun toString(): String {
