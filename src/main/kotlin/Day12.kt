@@ -33,8 +33,12 @@ object Day12 {
         }
     }
 
-    data class Position(val x:Int, val y:Int, val height: Char, val end: Boolean = false) {
+    data class Coordinates(val x:Int, val y:Int, val height: Char)
+
+    class Position(val coordinates: Coordinates, val end: Boolean = false) {
         var neighbours = mapOf<Direction, Position>()
+
+
 
         fun findPaths(path: List<Position> = listOf()): List<List<Position>> {
             val newPath = path + this
@@ -43,7 +47,7 @@ object Day12 {
             }
 
             val candidates = neighbours.values
-                .filter { n -> (height + 1) >= n.height   }
+                .filter { n -> (coordinates.height + 1) >= n.coordinates.height   }
                 .filter { n -> !path.contains(n) }
 
             return candidates.map { n -> n.findPaths(newPath) }
@@ -51,7 +55,22 @@ object Day12 {
                 .flatten()
         }
         override fun toString(): String {
-            return "Position(x=$x, y=$y, height=$height, neighbours=${neighbours.keys})"
+            return "Position($coordinates)"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Position
+
+            if (coordinates != other.coordinates) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return coordinates.hashCode()
         }
     }
 
@@ -64,17 +83,17 @@ object Day12 {
                     line.toList().mapIndexed { x, c ->
                         when (c) {
                             'S' -> {
-                                val s = Position(x, y, 'a')
+                                val s = Position(Coordinates(x, y, 'a'))
                                 start = s
                                 s
                             }
 
                             'E' -> {
-                                val e = Position(x, y, 'z', end = true)
+                                val e = Position(Coordinates(x, y, 'z'), end = true)
                                 end = e
                                 e
                             }
-                            else -> Position(x, y, c)
+                            else -> Position(Coordinates(x, y, c))
                         }
                     }
                 }
