@@ -38,8 +38,6 @@ object Day12 {
     class Position(val coordinates: Coordinates, val end: Boolean = false) {
         var neighbours = mapOf<Direction, Position>()
 
-
-
         fun findPaths(path: List<Position> = listOf()): List<List<Position>> {
             val newPath = path + this
             if(end) {
