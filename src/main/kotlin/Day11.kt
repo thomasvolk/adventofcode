@@ -17,7 +17,7 @@ object Day11 {
             return context
         }
     }
-    class Constant(val value: BigInteger): Operand {
+    class Constant(private val value: BigInteger): Operand {
         override fun value(context: BigInteger): BigInteger {
             return value
         }
@@ -43,7 +43,7 @@ object Day11 {
         }
     }
 
-    class Operation(val left: Operand, val operator: Operator, val right: Operand) {
+    class Operation(private val left: Operand, private val operator: Operator, private val right: Operand) {
         fun execute(context: BigInteger): BigInteger {
             return operator.execute(left.value(context), right.value(context))
         }
@@ -61,7 +61,7 @@ object Day11 {
         }
     }
 
-    class KeepAwayGame(val monkeys: List<Monkey>) {
+    class KeepAwayGame(private val monkeys: List<Monkey>) {
         private val monkeyMap = monkeys.associateBy { it.id }
         private val maxWorryLevel = monkeys.map { it.testDivisibleBy }.reduce{ a, b -> a * b } * BigInteger.TWO
         fun throwItem(item: BigInteger, to: Int) {
@@ -71,7 +71,7 @@ object Day11 {
             else {
                 item
             }
-            monkeyMap.get(to)?.receiveItem(compressedItem)
+            monkeyMap[to]?.receiveItem(compressedItem)
         }
 
         fun round() {
@@ -100,7 +100,7 @@ object Day11 {
                     game.throwItem(newWorryLevel, targetMonkeyIfTestFalse)
                 }
             }
-            itemsInspected = itemsInspected + items.count().toBigInteger()
+            itemsInspected += items.count().toBigInteger()
             items.clear()
         }
 
