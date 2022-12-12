@@ -37,10 +37,6 @@ object Day12 {
         var neighbours = mapOf<Direction, Position>()
 
         fun findPaths(path: List<Position> = listOf()): List<List<Position>> {
-            if(path.contains(this)) {
-                return emptyList()
-            }
-
             val newPath = path + this
             if(end) {
                 return listOf(newPath)
@@ -48,6 +44,7 @@ object Day12 {
 
             val candidates = neighbours.values
                 .filter { n -> (height + 1) >= n.height   }
+                .filter { n -> !path.contains(n) }
 
             return candidates.map { n -> n.findPaths(newPath) }
                 .filter { p -> p.isNotEmpty() }
