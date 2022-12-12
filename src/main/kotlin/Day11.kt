@@ -8,7 +8,7 @@ object Day11 {
 
         companion object {
             fun parse(input: String): Operand {
-                return if(input == "old") Old() else Constant(BigInteger.valueOf(input.toLong()))
+                return if(input == "old") Old() else Constant(input.toBigInteger())
             }
         }
     }
@@ -100,7 +100,7 @@ object Day11 {
                     game.throwItem(newWorryLevel, targetMonkeyIfTestFalse)
                 }
             }
-            itemsInspected = itemsInspected + BigInteger.valueOf(items.count().toLong())
+            itemsInspected = itemsInspected + items.count().toBigInteger()
             items.clear()
         }
 
@@ -136,9 +136,9 @@ object Day11 {
                                             items.groupValues[1]
                                                 .split(",")
                                                 .map { it.trim() }
-                                                .map { BigInteger.valueOf(it.toLong()) },
+                                                .map { it.toBigInteger() },
                                             Operation.parse(operation.groupValues[1]),
-                                            BigInteger.valueOf(test.groupValues[1].toLong()),
+                                            test.groupValues[1].toBigInteger(),
                                             ifTrue.groupValues[1].toInt(),
                                             ifFalse.groupValues[1].toInt(),
                                             damageLevelDivisor
