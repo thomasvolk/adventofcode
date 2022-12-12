@@ -38,7 +38,7 @@ object Day12 {
 
         fun findPaths(path: List<Position> = listOf()): List<List<Position>> {
             if(path.contains(this)) {
-                return listOf(path)
+                return emptyList()
             }
             val newPath = path + this
             if(end) {
@@ -47,6 +47,7 @@ object Day12 {
             return neighbours.values
                 .filter { n -> (height + 1) >= n.height   }
                 .map { n -> n.findPaths(newPath) }
+                .filter { path -> path.isNotEmpty() }
                 .flatten()
         }
         override fun toString(): String {
