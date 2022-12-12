@@ -49,7 +49,7 @@ object Day11 {
         }
 
         companion object {
-            private val partsRe     = "([0-9a-z]+) ([\\*\\+]) ([0-9a-z]+)".toRegex()
+            private val partsRe     = "([0-9a-z]+) ([*+]) ([0-9a-z]+)".toRegex()
             fun parse(input: String): Operation {
                 partsRe.find(input)?.let { p ->
                     val left = Operand.parse(p.groupValues[1])
@@ -112,8 +112,8 @@ object Day11 {
 
         companion object {
             private val monkeyStartRe   = "Monkey ([0-9]+):".toRegex()
-            private val startingItemsRe = "\\s\\sStarting items: ([0-9\\, ]+)".toRegex()
-            private val operationRe     = "\\s\\sOperation: new = ([0-9a-z \\*\\+]+)".toRegex()
+            private val startingItemsRe = "\\s\\sStarting items: ([0-9, ]+)".toRegex()
+            private val operationRe     = "\\s\\sOperation: new = ([0-9a-z *+]+)".toRegex()
             private val testRe          = "\\s\\sTest: divisible by ([0-9]+)".toRegex()
             private val ifTrueRe        = "\\s\\s\\s\\sIf true: throw to monkey ([0-9]+)".toRegex()
             private val ifFalseRe       = "\\s\\s\\s\\sIf false: throw to monkey ([0-9]+)".toRegex()
