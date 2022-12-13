@@ -7,16 +7,16 @@ object Day12 {
 
     enum class Direction {
         EAST {
-            override fun transformCoordinates(c: Coordinates): Coordinates = Coordinates(c.x + 1, c.y)
+            override fun transformCoordinates(coordinates: Coordinates): Coordinates = Coordinates(coordinates.x + 1, coordinates.y)
         },
         WEST {
-            override fun transformCoordinates(c: Coordinates): Coordinates = Coordinates(c.x - 1, c.y)
+            override fun transformCoordinates(coordinates: Coordinates): Coordinates = Coordinates(coordinates.x - 1, coordinates.y)
         },
         NORTH {
-            override fun transformCoordinates(c: Coordinates): Coordinates = Coordinates(c.x, c.y - 1)
+            override fun transformCoordinates(coordinates: Coordinates): Coordinates = Coordinates(coordinates.x, coordinates.y - 1)
         },
         SOUTH {
-            override fun transformCoordinates(c: Coordinates): Coordinates = Coordinates(c.x, c.y + 1)
+            override fun transformCoordinates(coordinates: Coordinates): Coordinates = Coordinates(coordinates.x, coordinates.y + 1)
         };
 
         abstract fun transformCoordinates(coordinates: Coordinates): Coordinates
@@ -31,7 +31,7 @@ object Day12 {
         fun findNeighbours(p: Position): Map<Direction, Position> {
             return Direction.values()
                 .map { d -> d to d.transformCoordinates(p.coordinates) }
-                .filter { (d, c) -> c.x >= 0 && c.y >= 0 && c.y < positions.count() }
+                .filter { (_, c) -> c.x >= 0 && c.y >= 0 && c.y < positions.count() }
                 .mapNotNull { (d, c) ->
                     val row = positions[c.y]
                     if (row.count() > c.x) d to row[c.x] else null
@@ -81,7 +81,7 @@ object Day12 {
 
     class PathFinder(val map: HeightMap) {
 
-        fun nextCandidates(path: List<Position>): List<Position> {
+        private fun nextCandidates(path: List<Position>): List<Position> {
             val current = path.last()
             val neighbours = map.findNeighbours(current)
             return neighbours.values
@@ -90,7 +90,7 @@ object Day12 {
         }
 
         fun findPath(): Int {
-            var path = listOf<PathStep>(PathStep(map.start))
+            var path = listOf(PathStep(map.start))
             var currentStep = PathStep(map.start)
             var minResultPathLength = -1
             while (true) {
@@ -124,12 +124,12 @@ object Day12 {
         private fun pathString(map: HeightMap, path: List<Coordinates>): String {
             val heigth = map.positions.count()
             val width = map.positions.first().count()
-            return (0 until heigth).map { y ->
+            return (0 until heigth).joinToString("\n") { y ->
                 (0 until width)
                     .map { x -> Coordinates(x, y) }
                     .map { c -> if (path.contains(c)) '#' else '.' }
                     .joinToString("")
-            }.joinToString("\n")
+            }
 
         }
     }
