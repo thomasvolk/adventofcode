@@ -7,121 +7,137 @@ object Day12 {
 
     enum class Direction {
         EAST {
-            override fun transformCoordinates(x: Int, y: Int): Pair<Int, Int> = Pair(x + 1, y)
+            override fun transformCoordinates(c: Coordinates): Coordinates = Coordinates(c.x + 1, c.y)
         },
         WEST {
-            override fun transformCoordinates(x: Int, y: Int): Pair<Int, Int> = Pair(x - 1, y)
+            override fun transformCoordinates(c: Coordinates): Coordinates = Coordinates(c.x - 1, c.y)
         },
         NORTH {
-            override fun transformCoordinates(x: Int, y: Int): Pair<Int, Int> = Pair(x, y - 1)
+            override fun transformCoordinates(c: Coordinates): Coordinates = Coordinates(c.x, c.y - 1)
         },
         SOUTH {
-            override fun transformCoordinates(x: Int, y: Int): Pair<Int, Int> = Pair(x, y + 1)
+            override fun transformCoordinates(c: Coordinates): Coordinates = Coordinates(c.x, c.y + 1)
         };
 
-        abstract fun transformCoordinates(x: Int, y: Int): Pair<Int, Int>
+        abstract fun transformCoordinates(coordinates: Coordinates): Coordinates
 
-        fun findNeighbour(x: Int, y: Int, positions: List<List<Position>>): Pair<Direction, Position>? {
-            val (nx, ny) = transformCoordinates(x, y)
-            if(nx>= 0 && ny >= 0 && ny < positions.count()) {
-                val row = positions[ny]
-                if(nx < row.count()) {
-                    return Pair(this, row[nx])
+    }
+
+    data class Coordinates(val x: Int, val y: Int)
+
+    data class Position(val coordinates: Coordinates, val height: Char, val end: Boolean = false)
+
+    data class HeightMap(val start: Position, val end: Position, val positions: List<List<Position>>) {
+        fun findNeighbours(p: Position): Map<Direction, Position> {
+            return Direction.values()
+                .map { d -> d to d.transformCoordinates(p.coordinates) }
+                .filter { (d, c) -> c.x >= 0 && c.y >= 0 && c.y < positions.count() }
+                .mapNotNull { (d, c) ->
+                    val row = positions[c.y]
+                    if (row.count() > c.x) d to row[c.x] else null
                 }
-            }
-            return null
-        }
-    }
-
-    data class Coordinates(val x:Int, val y:Int, val height: Char)
-
-    class Position(val coordinates: Coordinates, val end: Boolean = false) {
-        var neighbours = mapOf<Direction, Position>()
-
-        fun findPaths(path: List<Position> = listOf()): List<List<Position>> {
-            val newPath = path + this
-            if(end) {
-                return listOf(newPath)
-            }
-
-            val candidates = neighbours.values
-                .filter { n -> (coordinates.height + 1) >= n.coordinates.height   }
-                .filter { n -> !path.contains(n) }
-
-            return candidates.map { n -> n.findPaths(newPath) }
-                .filter { p -> p.isNotEmpty() }
-                .flatten()
-        }
-        override fun toString(): String {
-            return "Position($coordinates)"
+                .associate { it }
         }
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as Position
-
-            if (coordinates != other.coordinates) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return coordinates.hashCode()
-        }
-    }
-
-    data class Map(val start: Position, val end: Position, val positions: List<Position>){
         companion object {
-            fun parse(input: String): Map {
+            fun create(input: String): HeightMap {
                 var start: Position? = null
                 var end: Position? = null
-                val positions = input.split("\n").mapIndexed{ y, line ->
+                val positions = input.split("\n").mapIndexed { y, line ->
                     line.toList().mapIndexed { x, c ->
                         when (c) {
                             'S' -> {
-                                val s = Position(Coordinates(x, y, 'a'))
+                                val s = Position(Coordinates(x, y), 'a')
                                 start = s
                                 s
                             }
 
                             'E' -> {
-                                val e = Position(Coordinates(x, y, 'z'), end = true)
+                                val e = Position(Coordinates(x, y), 'z', end = true)
                                 end = e
                                 e
                             }
-                            else -> Position(Coordinates(x, y, c))
+
+                            else -> Position(Coordinates(x, y), c)
                         }
-                    }
-                }
-                positions.forEachIndexed { row, cols ->
-                    cols.forEachIndexed { col, position ->
-                        position.neighbours =
-                            Direction.values()
-                            .mapNotNull { it.findNeighbour(col, row, positions) }
-                            .associate { it }
                     }
                 }
                 start?.let { s ->
                     end?.let { e ->
-                        return Map(s, e, positions.flatten())
+                        return HeightMap(s, e, positions)
                     }
                     throw IllegalArgumentException("input map has no end point 'E' - $input")
                 }
                 throw IllegalArgumentException("input map has no start point 'S' - $input")
             }
         }
+    }
 
-        fun findPaths(): List<List<Position>> {
-            return start.findPaths().filter { it.contains(end) }
+    class PathStep(val position: Position, var choices: Set<Position> = setOf()) {
+        override fun toString(): String {
+            return "PathStep(position=$position)"
+        }
+    }
+
+    class PathFinder(val map: HeightMap) {
+
+        fun nextCandidates(path: List<Position>): List<Position> {
+            val current = path.last()
+            val neighbours = map.findNeighbours(current)
+            return neighbours.values
+                .filter { n -> (current.height + 1) >= n.height }
+                .filter { n -> !path.contains(n) }
+        }
+
+        fun findPath(): Int {
+            var path = listOf<PathStep>(PathStep(map.start))
+            var currentStep = PathStep(map.start)
+            var minResultPathLength = -1
+            while (true) {
+                val nextCandidates = nextCandidates(path.map { it.position })
+                    .filter { it != map.start }
+                    .filter { it != currentStep.position }
+                    .filter { !currentStep.choices.contains(it) }
+                if (nextCandidates.isNotEmpty()) {
+                    val next = PathStep(nextCandidates.first())
+                    currentStep.choices = currentStep.choices + next.position
+                    currentStep = next
+                    path = path + next
+                } else {
+                    if(currentStep.position == map.start) break
+                    path = path.dropLast(1)
+                    currentStep = path.last()
+                }
+                if(currentStep.position == map.end) {
+                    val pathLength = path.count() - 1
+                    if(minResultPathLength == -1 || minResultPathLength > pathLength) {
+                        minResultPathLength = pathLength
+                    }
+                }
+                //val str = pathString(map, path.map { it.position.coordinates })
+                //println("               ")
+                //println(str)
+            }
+            return minResultPathLength
+        }
+
+        private fun pathString(map: HeightMap, path: List<Coordinates>): String {
+            val heigth = map.positions.count()
+            val width = map.positions.first().count()
+            return (0 until heigth).map { y ->
+                (0 until width)
+                    .map { x -> Coordinates(x, y) }
+                    .map { c -> if (path.contains(c)) '#' else '.' }
+                    .joinToString("")
+            }.joinToString("\n")
+
         }
     }
 
     fun stepsForShortestPath(input: String): Int {
-        val map = Map.parse(input)
-        val pathsFound = map.findPaths().map { it.count() - 1 }.sorted()
-        return pathsFound.first()
+        val map = HeightMap.create(input)
+        val pf = PathFinder(map)
+        return pf.findPath()
     }
 
     fun stepsForShortestPath(input: URL): Int {
