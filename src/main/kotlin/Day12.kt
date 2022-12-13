@@ -81,12 +81,12 @@ object Day12 {
 
     class PathFinder(val map: HeightMap) {
 
-        private fun nextCandidates(path: List<Position>): List<Position> {
+        private fun nextCandidates(path: List<Position>): Map<Direction, Position> {
             val current = path.last()
             val neighbours = map.findNeighbours(current)
-            return neighbours.values
-                .filter { n -> (current.height + 1) >= n.height }
-                .filter { n -> !path.contains(n) }
+            return neighbours
+                .filter { (d, n) -> (current.height + 1) >= n.height }
+                .filterNot { (d, n) -> path.contains(n) }
         }
 
         fun findPath(): Int {
@@ -95,11 +95,11 @@ object Day12 {
             var minResultPathLength = -1
             while (true) {
                 val nextCandidates = nextCandidates(path.map { it.position })
-                    .filter { it != map.start }
-                    .filter { it != currentStep.position }
-                    .filter { !currentStep.choices.contains(it) }
+                    .filter { it.value != map.start }
+                    .filter { it.value != currentStep.position }
+                    .filter { !currentStep.choices.contains(it.value) }
                 if (nextCandidates.isNotEmpty()) {
-                    val next = PathStep(nextCandidates.first())
+                    val next = PathStep(pickCandidate(currentStep, nextCandidates))
                     currentStep.choices = currentStep.choices + next.position
                     currentStep = next
                     path = path + next
@@ -110,24 +110,45 @@ object Day12 {
                 }
                 if(currentStep.position == map.end) {
                     val pathLength = path.count() - 1
+                    println("found path: $pathLength")
+                    println(pathString(map, path))
                     if(minResultPathLength == -1 || minResultPathLength > pathLength) {
                         minResultPathLength = pathLength
                     }
                 }
-                //val str = pathString(map, path.map { it.position.coordinates })
-                //println("               ")
-                //println(str)
             }
             return minResultPathLength
         }
 
-        private fun pathString(map: HeightMap, path: List<Coordinates>): String {
+        private fun pickCandidate(currentStep: PathStep, nextCandidates: Map<Direction, Position>): Position {
+            val currentX = currentStep.position.coordinates.x
+            val currentY = currentStep.position.coordinates.y
+            nextCandidates[Direction.EAST]?.let { p ->
+                if(currentX < map.end.coordinates.x) return p
+            }
+            nextCandidates[Direction.WEST]?.let { p ->
+                if(currentX > map.end.coordinates.x) return p
+            }
+            nextCandidates[Direction.NORTH]?.let { p ->
+                if(currentY > map.end.coordinates.y) return p
+            }
+            nextCandidates[Direction.SOUTH]?.let { p ->
+                if(currentY < map.end.coordinates.y) return p
+            }
+            return nextCandidates.values.first()
+        }
+
+        private fun pathString(map: HeightMap, path: List<PathStep>): String {
+            val cPath = path.map { it.position.coordinates }
             val heigth = map.positions.count()
             val width = map.positions.first().count()
             return (0 until heigth).joinToString("\n") { y ->
                 (0 until width)
                     .map { x -> Coordinates(x, y) }
-                    .map { c -> if (path.contains(c)) '#' else '.' }
+                    .map { c ->
+                        val idx = cPath.indexOf(c)
+                        if (idx >= 0) '#' else ' '
+                    }
                     .joinToString("")
             }
 
