@@ -1,5 +1,6 @@
 package net.t53k
 
+import org.openjdk.nashorn.api.scripting.ScriptObjectMirror
 import java.net.URL
 import javax.script.ScriptEngineManager
 
@@ -12,9 +13,9 @@ object Day13 {
         companion object {
             val jsEngine = ScriptEngineManager().getEngineByName("nashorn")
             fun parse(pair: String): PacketPair {
-                val (first, last) = pair.split("\n").map { jsEngine.eval(it) }
-                println("first: $first")
-                println("last: $last")
+                val (first, second) = pair.split("\n").map { jsEngine.eval(it) as ScriptObjectMirror }
+                println("first: isArray=${first.isArray} ${first.entries}")
+                println("second: isArray=${second.isArray} ${second.entries}")
                 TODO("Not yet implemented")
             }
         }
