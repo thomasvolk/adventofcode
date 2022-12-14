@@ -10,8 +10,7 @@ object Day13 {
     data class NumberPacket(val value: Int): Packet
     data class PacketPair(val index: Int, val first: Packet, val second: Packet) {
         companion object {
-            val jsEngineFactory = ScriptEngineManager()
-            val jsEngine = jsEngineFactory.getEngineByName("javascript")
+            val jsEngine = ScriptEngineManager().getEngineByName("nashorn")
             fun parse(pair: String): PacketPair {
                 val (first, last) = pair.split("\n").map { jsEngine.eval(it) }
                 println("first: $first")

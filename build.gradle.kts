@@ -14,6 +14,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    implementation("org.openjdk.nashorn:nashorn-core:15.4")
 }
 
 tasks.test {
