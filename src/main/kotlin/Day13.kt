@@ -50,6 +50,10 @@ object Day13 {
                             return 1
                         }
                     }
+                    if(this.values.count() < other.values.count()) {
+                        // Left side ran out of items
+                        return -1
+                    }
                     return 0
                 }
                 else -> throw IllegalArgumentException("can not handle package type: ${other.javaClass}")
