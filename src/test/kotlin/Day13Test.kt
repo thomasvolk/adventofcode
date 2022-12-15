@@ -2,6 +2,7 @@ package net.t53k
 
 import org.junit.jupiter.api.Test
 import java.net.URL
+import kotlin.test.assertEquals
 
 class Day13Test {
     private val inputFile: URL = PuzzleInput.loadFile("/Day13-input.txt")
@@ -34,6 +35,14 @@ class Day13Test {
             [1,[2,[3,[4,[5,6,0]]]],8,9]
         """.trimIndent()
         val packetPairs = Day13.parse(testData)
-        println(packetPairs)
+        val result = packetPairs.filter { it.correctOrder() }.sumOf { it.index }
+        assertEquals(13, result)
+    }
+
+    @Test
+    fun testDay13Part1() {
+        val packetPairs = Day13.parse(inputFile)
+        val result = packetPairs.filter { it.correctOrder() }.sumOf { it.index }
+        assertEquals(3394, result)
     }
 }
