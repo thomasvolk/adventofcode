@@ -7,23 +7,28 @@ import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 
 object Day13 {
+    private val jsEngine: ScriptEngine = ScriptEngineManager().getEngineByName("nashorn")
     interface Packet: Comparable<Packet> {
 
         fun toListPacket(): ListPacket
 
         companion object {
-            fun parse(item: ScriptObjectMirror): Packet {
+            fun create(item: ScriptObjectMirror): Packet {
                 return if(item.isArray) {
                     ListPacket(item.values.map {
                         when(it) {
                             is Int -> NumberPacket(it)
-                            else -> parse(it as ScriptObjectMirror)
+                            else -> create(it as ScriptObjectMirror)
                         }
                     })
                 }
                 else {
                     NumberPacket(0)
                 }
+            }
+
+            fun parse(item: String): Packet {
+                return create(jsEngine.eval(item) as ScriptObjectMirror)
             }
         }
     }
@@ -80,10 +85,9 @@ object Day13 {
         }
 
         companion object {
-            private val jsEngine: ScriptEngine = ScriptEngineManager().getEngineByName("nashorn")
             fun parse(index: Int, pair: String): PacketPair {
                 val (first, second) = pair.split("\n").map { jsEngine.eval(it) as ScriptObjectMirror }
-                return PacketPair(index, Packet.parse(first), Packet.parse(second))
+                return PacketPair(index, Packet.create(first), Packet.create(second))
             }
         }
     }

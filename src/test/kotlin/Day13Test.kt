@@ -43,6 +43,18 @@ class Day13Test {
     fun testDay13Part1() {
         val packetPairs = Day13.parse(inputFile)
         val result = packetPairs.filter { it.correctOrder() }.sumOf { it.index }
-        assertEquals(3394, result)
+        assertEquals(5580, result)
+    }
+    @Test
+    fun testDay13Part2() {
+        val packetPairs = Day13.parse(inputFile)
+        val start = Day13.Packet.parse("[[2]]")
+        val end = Day13.Packet.parse("[[6]]")
+        val allPackages = packetPairs
+            .map { listOf(it.left, it.right) }
+            .flatten()
+        val sorted = (allPackages + listOf(start, end)).sorted()
+        val result = (sorted.indexOf(start) + 1) * (sorted.indexOf(end) + 1)
+        assertEquals(26200, result)
     }
 }
