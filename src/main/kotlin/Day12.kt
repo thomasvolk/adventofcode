@@ -85,8 +85,8 @@ object Day12 {
             val current = path.last()
             val neighbours = map.findNeighbours(current)
             return neighbours
-                .filter { (d, n) -> (current.height + 1) >= n.height }
-                .filterNot { (d, n) -> path.contains(n) }
+                .filter { (_, n) -> (current.height + 1) >= n.height }
+                .filterNot { (_, n) -> path.contains(n) }
         }
 
         fun findPath(): Int {
