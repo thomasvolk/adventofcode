@@ -35,7 +35,7 @@ object Day12 {
 
     data class Coordinates(val x: Int, val y: Int)
 
-    open class Position(val coordinates: Coordinates, val height: Char) {
+    open class Position(val coordinates: Coordinates, private val height: Char) {
         private var neighbours = mapOf<Direction, Position>()
         var explored = false
 
@@ -64,17 +64,6 @@ object Day12 {
     class End(coordinates: Coordinates, height: Char): Position(coordinates, height)
 
     data class HeightMap(val start: Position, val end: Position, val positions: List<List<Position>>) {
-        fun findNeighbours(p: Position): Map<Direction, Position> {
-            return Direction.values()
-                .map { d -> d to d.transformCoordinates(p.coordinates) }
-                .filter { (_, c) -> c.x >= 0 && c.y >= 0 && c.y < positions.count() }
-                .mapNotNull { (d, c) ->
-                    val row = positions[c.y]
-                    if (row.count() > c.x) d to row[c.x] else null
-                }
-                .filter { it.second.height <= (p.height + 1) }
-                .associate { it }
-        }
 
         fun findPath(): Int {
             start.explored = true

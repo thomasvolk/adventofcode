@@ -19,7 +19,7 @@ class Day12Test {
     }
     @Test
     fun testDay12Part1() {
-        // brute force is not working :-(
+        // still not right :-(
         assertEquals(1240, Day12.stepsForShortestPath(inputFile))
     }
 }
