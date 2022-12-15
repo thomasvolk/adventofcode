@@ -6,17 +6,30 @@ import javax.script.ScriptEngineManager
 
 object Day13 {
     interface Packet {
+        companion object {
+            fun parse(item: ScriptObjectMirror): Packet {
+                return if(item.isArray) {
+                    ListPacket(item.values.map {
+                        when(it) {
+                            is Int -> NumberPacket(it)
+                            else -> parse(it as ScriptObjectMirror)
+                        }
+                    })
+                }
+                else {
+                    NumberPacket(0)
+                }
+            }
+        }
     }
     data class ListPacket(val values: List<Packet>): Packet
     data class NumberPacket(val value: Int): Packet
     data class PacketPair(val index: Int, val first: Packet, val second: Packet) {
         companion object {
             val jsEngine = ScriptEngineManager().getEngineByName("nashorn")
-            fun parse(pair: String): PacketPair {
+            fun parse(index: Int, pair: String): PacketPair {
                 val (first, second) = pair.split("\n").map { jsEngine.eval(it) as ScriptObjectMirror }
-                println("first: isArray=${first.isArray} ${first.entries}")
-                println("second: isArray=${second.isArray} ${second.entries}")
-                TODO("Not yet implemented")
+                return PacketPair(index, Packet.parse(first), Packet.parse(second))
             }
         }
     }
@@ -26,8 +39,8 @@ object Day13 {
     }
 
     fun parse(input: String): List<PacketPair> {
-        return input.split("\n\n").map {pair ->
-            PacketPair.parse(pair)
+        return input.split("\n\n").mapIndexed { i, pair ->
+            PacketPair.parse(i, pair)
         }
     }
 }

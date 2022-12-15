@@ -34,5 +34,6 @@ class Day13Test {
             [1,[2,[3,[4,[5,6,0]]]],8,9]
         """.trimIndent()
         val packetPairs = Day13.parse(testData)
+        println(packetPairs)
     }
 }
