@@ -146,7 +146,11 @@ object Day12 {
             val path = path(end)
             return positions.map { cols ->
                 cols.map {  position ->
-                    if(path.contains(position)) { '#' } else { position.height }
+                    when(position) {
+                        start -> 'S'
+                        end -> 'E'
+                        else -> if(path.contains(position)) { '#' } else { position.height }
+                    }
                 }.joinToString("")
             }.joinToString("\n")
         }
