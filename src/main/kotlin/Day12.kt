@@ -20,12 +20,12 @@ object Day12 {
 
         abstract fun transformCoordinates(coordinates: Coordinates): Coordinates
 
-        fun findNeighbour(coordinates: Coordinates, positions: List<List<Position>>): Pair<Direction, Position>? {
+        fun findNeighbour(coordinates: Coordinates, positions: List<List<Position>>): Position? {
             val (nx, ny) = transformCoordinates(coordinates)
             if(nx>= 0 && ny >= 0 && ny < positions.count()) {
                 val row = positions[ny]
                 if(nx < row.count()) {
-                    return Pair(this, row[nx])
+                    return row[nx]
                 }
             }
             return null
@@ -35,14 +35,10 @@ object Day12 {
     data class Coordinates(val x: Int, val y: Int)
 
     open class Position(val coordinates: Coordinates, val height: Char) {
-        private var neighbours = mapOf<Direction, Position>()
+        var neighbours = listOf<Position>()
         var explored = false
         var parent: Position? = null
 
-        fun neighbours(n: Map<Direction, Position>) {
-            neighbours = n
-        }
-        fun neighbours() = neighbours.values
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -90,13 +86,11 @@ object Day12 {
             }
             positions.forEachIndexed { row, cols ->
                 cols.forEachIndexed { col, position ->
-                    position.neighbours(
+                    position.neighbours =
                         Direction.values()
                             .mapNotNull { it.findNeighbour(Coordinates(col, row), positions) }
-                            .filter { it.second.height <= (position.height + 1) }
-                            .sortedBy { it.second.height }
-                            .associate { it }
-                    )
+                            .filter { it.height <= (position.height + 1) }
+                            .sortedBy { it.height }
                 }
             }
         }
@@ -120,7 +114,7 @@ object Day12 {
                 if(v is End) {
                     return path(end).count()
                 }
-                for(n in v.neighbours()) {
+                for(n in v.neighbours) {
                     if(!n.explored) {
                         n.explored = true
                         n.parent  = v
@@ -150,7 +144,7 @@ object Day12 {
                     when(position) {
                         start -> 'S'
                         end -> 'E'
-                        else -> if(path.contains(position)) { '#' } else { position.height }
+                        else -> if(path.contains(position)) { '.' } else { position.height }
                     }
                 }.joinToString("")
             }.joinToString("\n")

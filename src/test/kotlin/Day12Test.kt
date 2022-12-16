@@ -16,6 +16,7 @@ class Day12Test {
             abdefghi
         """.trimIndent()
         val map = Day12.parseMap(inputData)
+        println("")
         println(map)
         val count = map.findPath()
         println("")
@@ -25,6 +26,9 @@ class Day12Test {
     @Test
     fun testDay12Part1() {
         val map = Day12.parseMap(inputFile)
-        assertEquals(562, map.findPath())
+        val count = map.findPath()
+        println("")
+        println(map)
+        assertEquals(562, count)
     }
 }
