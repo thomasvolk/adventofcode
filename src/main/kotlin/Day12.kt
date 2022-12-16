@@ -94,6 +94,7 @@ object Day12 {
                         Direction.values()
                             .mapNotNull { it.findNeighbour(Coordinates(col, row), positions) }
                             .filter { it.second.height <= (position.height + 1) }
+                            .sortedBy { it.second.height }
                             .associate { it }
                     )
                 }

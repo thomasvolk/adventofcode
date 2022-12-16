@@ -25,6 +25,6 @@ class Day12Test {
     @Test
     fun testDay12Part1() {
         val map = Day12.parseMap(inputFile)
-        assertEquals(-1, map.findPath())
+        assertEquals(562, map.findPath())
     }
 }
