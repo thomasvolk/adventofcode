@@ -65,7 +65,7 @@ object Day12 {
     data class HeightMap(val start: Position, val end: Position, val positions: List<List<Position>>) {
 
         fun findPath(): Int {
-            val explored = mutableListOf<Position>()
+            val explored = mutableSetOf<Position>()
             explored.add(start)
             val queue = ArrayDeque<Position>()
             queue.addFirst(start)
