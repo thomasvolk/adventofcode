@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 class Day12Test {
     private val inputFile: URL = PuzzleInput.loadFile("/Day12-input.txt")
     @Test
-    fun testSimpleMap() {
+    fun testExample() {
         val inputData = """
             Sabqponm
             abcryxxl
@@ -15,11 +15,16 @@ class Day12Test {
             acctuvwj
             abdefghi
         """.trimIndent()
-        assertEquals(31, Day12.stepsForShortestPath(inputData))
+        val map = Day12.parseMap(inputData)
+        println(map)
+        val count = map.findPath()
+        println("")
+        println(map)
+        assertEquals(31, count)
     }
     @Test
     fun testDay12Part1() {
-        // still not right :-(
-        assertEquals(1240, Day12.stepsForShortestPath(inputFile))
+        val map = Day12.parseMap(inputFile)
+        assertEquals(-1, map.findPath())
     }
 }

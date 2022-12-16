@@ -1,6 +1,5 @@
 package net.t53k
 
-import java.lang.IllegalArgumentException
 import java.net.URL
 
 object Day12 {
@@ -35,9 +34,10 @@ object Day12 {
 
     data class Coordinates(val x: Int, val y: Int)
 
-    open class Position(val coordinates: Coordinates, private val height: Char) {
+    open class Position(val coordinates: Coordinates, val height: Char) {
         private var neighbours = mapOf<Direction, Position>()
         var explored = false
+        var parent: Position? = null
 
         fun neighbours(n: Map<Direction, Position>) {
             neighbours = n
@@ -93,42 +93,70 @@ object Day12 {
                     position.neighbours(
                         Direction.values()
                             .mapNotNull { it.findNeighbour(Coordinates(col, row), positions) }
+                            .filter { it.second.height <= (position.height + 1) }
                             .associate { it }
                     )
                 }
             }
         }
 
+        private fun reset() {
+            positions.forEach { row ->
+                row.forEach { position ->
+                    position.explored = false
+                    position.parent = null
+                }
+            }
+        }
+
         fun findPath(): Int {
+            reset()
             start.explored = true
             val queue = ArrayDeque<Position>()
             queue.addFirst(start)
-            var count = 1
             while(queue.isNotEmpty()) {
-                count++
                 val v = queue.removeFirst()
                 if(v is End) {
-                    println("found the end")
-                    return count
+                    return path(end).count()
                 }
                 for(n in v.neighbours()) {
                     if(!n.explored) {
                         n.explored = true
+                        n.parent  = v
                         queue.addFirst(n)
                     }
                 }
-
             }
-            return count
+            throw RuntimeException("end position not found")
+        }
+
+        private fun path(position: Position): List<Position> {
+            var result = listOf<Position>()
+            var current: Position? = position
+            while(current != null) {
+                current = current.parent
+                current?.let {
+                    result = result + current
+                }
+            }
+            return result
+        }
+
+        override fun toString(): String {
+            val path = path(end)
+            return positions.map { cols ->
+                cols.map {  position ->
+                    if(path.contains(position)) { '#' } else { position.height }
+                }.joinToString("")
+            }.joinToString("\n")
         }
     }
 
-    fun stepsForShortestPath(input: String): Int {
-        val map = HeightMap(input)
-        return map.findPath()
+    fun parseMap(input: String): HeightMap {
+        return HeightMap(input)
     }
 
-    fun stepsForShortestPath(input: URL): Int {
-        return stepsForShortestPath(input.readText())
+    fun parseMap(input: URL): HeightMap {
+        return parseMap(input.readText())
     }
 }
