@@ -37,6 +37,7 @@ object Day12 {
 
     open class Position(val coordinates: Coordinates, private val height: Char) {
         private var neighbours = mapOf<Direction, Position>()
+        var explored = false
 
         fun neighbours(n: Map<Direction, Position>) {
             neighbours = n
@@ -62,11 +63,44 @@ object Day12 {
 
     class End(coordinates: Coordinates, height: Char): Position(coordinates, height)
 
-    data class HeightMap(val start: Position, val end: Position, val positions: List<List<Position>>) {
+    class HeightMap(input: String) {
+        private lateinit var start: Position
+        private lateinit var end: Position
+        private var positions: List<List<Position>>
+
+        init {
+            positions = input.split("\n").mapIndexed { y, line ->
+                line.toList().mapIndexed { x, c ->
+                    when (c) {
+                        'S' -> {
+                            val s = Position(Coordinates(x, y), 'a')
+                            start = s
+                            s
+                        }
+
+                        'E' -> {
+                            val e = End(Coordinates(x, y), 'z')
+                            end = e
+                            e
+                        }
+
+                        else -> Position(Coordinates(x, y), c)
+                    }
+                }
+            }
+            positions.forEachIndexed { row, cols ->
+                cols.forEachIndexed { col, position ->
+                    position.neighbours(
+                        Direction.values()
+                            .mapNotNull { it.findNeighbour(Coordinates(col, row), positions) }
+                            .associate { it }
+                    )
+                }
+            }
+        }
 
         fun findPath(): Int {
-            val explored = mutableSetOf<Position>()
-            explored.add(start)
+            start.explored = true
             val queue = ArrayDeque<Position>()
             queue.addFirst(start)
             var count = 1
@@ -78,8 +112,8 @@ object Day12 {
                     return count
                 }
                 for(n in v.neighbours()) {
-                    if(!explored.contains(n)) {
-                        explored.add(n)
+                    if(!n.explored) {
+                        n.explored = true
                         queue.addFirst(n)
                     }
                 }
@@ -87,52 +121,10 @@ object Day12 {
             }
             return count
         }
-
-        companion object {
-            fun create(input: String): HeightMap {
-                var start: Position? = null
-                var end: Position? = null
-                val positions = input.split("\n").mapIndexed { y, line ->
-                    line.toList().mapIndexed { x, c ->
-                        when (c) {
-                            'S' -> {
-                                val s = Position(Coordinates(x, y), 'a')
-                                start = s
-                                s
-                            }
-
-                            'E' -> {
-                                val e = End(Coordinates(x, y), 'z')
-                                end = e
-                                e
-                            }
-
-                            else -> Position(Coordinates(x, y), c)
-                        }
-                    }
-                }
-                positions.forEachIndexed { row, cols ->
-                    cols.forEachIndexed { col, position ->
-                        position.neighbours(
-                            Direction.values()
-                                .mapNotNull { it.findNeighbour(Coordinates(col, row), positions) }
-                                .associate { it }
-                        )
-                    }
-                }
-                start?.let { s ->
-                    end?.let { e ->
-                        return HeightMap(s, e, positions)
-                    }
-                    throw IllegalArgumentException("input map has no end point 'E' - $input")
-                }
-                throw IllegalArgumentException("input map has no start point 'S' - $input")
-            }
-        }
     }
 
     fun stepsForShortestPath(input: String): Int {
-        val map = HeightMap.create(input)
+        val map = HeightMap(input)
         return map.findPath()
     }
 
