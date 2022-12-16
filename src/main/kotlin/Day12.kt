@@ -125,17 +125,6 @@ object Day12 {
             throw RuntimeException("end position not found")
         }
 
-        private fun path(position: Position): List<Position> {
-            var result = listOf<Position>()
-            var current: Position? = position
-            while(current != null) {
-                current = current.parent
-                current?.let {
-                    result = result + current
-                }
-            }
-            return result
-        }
 
         override fun toString(): String {
             val path = path(end)
@@ -148,6 +137,19 @@ object Day12 {
                     }
                 }.joinToString("")
             }.joinToString("\n")
+        }
+        companion object {
+            private fun path(position: Position): List<Position> {
+                var result = listOf<Position>()
+                var current: Position? = position
+                while(current != null) {
+                    current = current.parent
+                    current?.let {
+                        result = result + current
+                    }
+                }
+                return result
+            }
         }
     }
 
