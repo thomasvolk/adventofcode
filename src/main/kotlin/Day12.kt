@@ -37,7 +37,6 @@ object Day12 {
 
     open class Position(val coordinates: Coordinates, private val height: Char) {
         private var neighbours = mapOf<Direction, Position>()
-        var explored = false
 
         fun neighbours(n: Map<Direction, Position>) {
             neighbours = n
@@ -66,17 +65,21 @@ object Day12 {
     data class HeightMap(val start: Position, val end: Position, val positions: List<List<Position>>) {
 
         fun findPath(): Int {
-            start.explored = true
+            val explored = mutableListOf<Position>()
+            explored.add(start)
             val queue = ArrayDeque<Position>()
             queue.addFirst(start)
             var count = 1
             while(queue.isNotEmpty()) {
                 count++
                 val v = queue.removeFirst()
-                if(v is End) return count
+                if(v is End) {
+                    println("found the end")
+                    return count
+                }
                 for(n in v.neighbours()) {
-                    if(!n.explored) {
-                        n.explored = true
+                    if(!explored.contains(n)) {
+                        explored.add(n)
                         queue.addFirst(n)
                     }
                 }
