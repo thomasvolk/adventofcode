@@ -104,6 +104,8 @@ object Day12 {
             }
         }
 
+        // BFS implementation
+        // https://www.reddit.com/r/adventofcode/comments/zk9sds/2022_day_12_fess_up_who_else_overengineered_this/
         fun findPath(): Int {
             reset()
             start.explored = true
