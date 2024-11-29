@@ -1,3 +1,4 @@
 (test
  (name test_day01)
+ (deps (glob_files_rec ../resources/*))
  (libraries aoc2024 ounit2))
