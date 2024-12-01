@@ -18,6 +18,16 @@ let get_columns =
   (c_l, c_r)
 
 let total_distance = 
-  let cols = get_columns in
-  let sorted_pairs = List.combine (fst cols) (snd cols) in
+  let (l, r) = get_columns in
+  let sorted_pairs = List.combine l r in
   List.fold_left (fun ac (a, b) ->  ac + ( Int.abs (a - b))) 0 sorted_pairs
+
+let similarity_score =
+  let (l, r) = get_columns in
+  let ul = List.sort_uniq compare l in
+  ul 
+    |> List.map (fun n -> n * (List.length (List.find_all (fun e -> e = n) r)))
+    |> List.fold_left (+) 0
+
+
+
