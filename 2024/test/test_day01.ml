@@ -5,7 +5,7 @@ let tests =
   "Day01" >::: [
     "add" >:: (fun _ -> 
       assert_equal ~printer:string_of_int 11 (Day01.add 9 2) ;
-      assert_equal ~printer:string_of_int 14000 (String.length (Io.read_file "../resources/input_day01-a.txt"))
+      assert_equal ~printer:string_of_int 1000 (List.length (Io.read_file_lines "../resources/input_day01-a.txt"))
     )
   ]
 
