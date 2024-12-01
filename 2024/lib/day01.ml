@@ -9,9 +9,11 @@ let total_distance =
       int_of_string (Re.Group.get g 2)
     )
   in
-  Io.File.fold_lines "../resources/input_day01-a.txt" 0 (
-    fun ac l -> 
-      let t = parse_line l in
-      ac + (fst t) + (snd t)
-  )
-
+  let pairs = 
+    Io.File.read_lines "../resources/input_day01-a.txt"
+    |> List.map parse_line
+  in
+  let n_a = pairs |> List.map fst |> List.sort compare in
+  let n_b = pairs |> List.map snd |> List.sort compare in
+  let sorted_pairs = List.combine n_a n_b in
+  List.fold_left (fun ac (a, b) ->  ac + ( Int.abs (a - b))) 0 sorted_pairs
