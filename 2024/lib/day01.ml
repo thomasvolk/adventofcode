@@ -1,6 +1,6 @@
 open Re
 
-let total_distance = 
+let get_columns = 
   let re_npair = Perl.compile_pat "(\\d+)\\s+(\\d+)" in
   let parse_line l = 
     let g = Re.exec re_npair l in
@@ -13,7 +13,11 @@ let total_distance =
     Io.File.read_lines "../resources/input_day01-a.txt"
     |> List.map parse_line
   in
-  let n_a = pairs |> List.map fst |> List.sort compare in
-  let n_b = pairs |> List.map snd |> List.sort compare in
-  let sorted_pairs = List.combine n_a n_b in
+  let c_l = pairs |> List.map fst |> List.sort compare in
+  let c_r = pairs |> List.map snd |> List.sort compare in
+  (c_l, c_r)
+
+let total_distance = 
+  let cols = get_columns in
+  let sorted_pairs = List.combine (fst cols) (snd cols) in
   List.fold_left (fun ac (a, b) ->  ac + ( Int.abs (a - b))) 0 sorted_pairs
