@@ -26,7 +26,7 @@ let similarity_score =
   let (l, r) = get_columns in
   let ul = List.sort_uniq compare l in
   ul 
-    |> List.map (fun n -> n * (List.length (List.find_all (fun e -> e = n) r)))
+    |> List.map (fun n -> n * (r |> List.find_all ((=) n) |> List.length))
     |> List.fold_left (+) 0
 
 
