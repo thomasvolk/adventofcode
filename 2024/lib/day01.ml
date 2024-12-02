@@ -10,7 +10,7 @@ let get_columns =
     )
   in
   let pairs = 
-    Io.File.read_lines "../resources/input_day01-a.txt"
+    Io.File.read_lines "../resources/input_day01.txt"
     |> List.map parse_line
   in
   let c_l = pairs |> List.map fst |> List.sort compare in
