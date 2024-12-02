@@ -44,10 +44,10 @@ let get_save_reports_with_tolerance src =
     match validate_report rep with
       | (Ok `Safe) -> true
       | (Error m) -> 
-          let r = m + 1 in
-          let l = m - 1 in
-          is_report_safe (remove_item m rep)
-            || is_report_safe (remove_item l rep)
-            || is_report_safe (remove_item r rep)
+          is_report_safe (remove_item (m - 2) rep)
+            || is_report_safe (remove_item (m - 1) rep)
+            || is_report_safe (remove_item m rep)
+            || is_report_safe (remove_item (m + 1) rep)
+            || is_report_safe (remove_item (m + 2) rep)
   in
   get_reports src |> List.filter is_safe

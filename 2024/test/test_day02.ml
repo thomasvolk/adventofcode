@@ -9,7 +9,7 @@ let tests =
     );
     "b" >:: (fun _ -> 
       assert_equal ~printer:string_of_int 4 (List.length (Day02.get_save_reports_with_tolerance "day02-sample"));
-      assert_equal ~printer:string_of_int 359 (List.length (Day02.get_save_reports_with_tolerance "day02"))
+      assert_equal ~printer:string_of_int 381 (List.length (Day02.get_save_reports_with_tolerance "day02"))
     )
   ]
 
