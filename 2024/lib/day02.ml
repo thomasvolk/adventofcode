@@ -18,7 +18,7 @@ let get_reports d =
   Io.Resource.read_lines d
     |> List.map parse_line
 
-let is_save r = 
+let validate_report r = 
   let rec is_save_loop d p l =
     match l with
     | [] -> (Ok `Safe)
@@ -32,6 +32,7 @@ let is_save r =
   in
   is_save_loop Undefined None r
 
-let get_save_reports src =
-  get_reports src |> List.filter (fun r -> (is_save r) = (Ok `Safe))
+let is_report_safe r = (validate_report r) = (Ok `Safe)
 
+let get_save_reports src =
+  get_reports src |> List.filter is_report_safe
