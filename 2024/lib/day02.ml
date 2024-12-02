@@ -11,16 +11,9 @@ let get_direction op c = match op with
 
 
 let get_reports d = 
-  let re_report = Perl.compile_pat "(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)" in
+  let re_report = Perl.compile_pat "\\d+" in
   let parse_line l = 
-    let g = Re.exec re_report l in
-    [
-      int_of_string (Re.Group.get g 1); 
-      int_of_string (Re.Group.get g 2);
-      int_of_string (Re.Group.get g 3);
-      int_of_string (Re.Group.get g 4);
-      int_of_string (Re.Group.get g 5)
-    ]
+    Re.all re_report l |> List.map (fun groups -> Re.Group.get groups 0 |> int_of_string)
   in
   Io.Resource.read_lines d
     |> List.map parse_line
