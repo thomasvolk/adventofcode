@@ -18,20 +18,20 @@ let get_reports d =
   Io.Resource.read_lines d
     |> List.map parse_line
 
-let get_save_reports src =
-  let is_save r = 
-    let rec is_save_loop d p l =
-      match l with
-      | [] -> true
-      | h :: tl ->
-        let new_d = get_direction p h in
-        match (d, new_d) with
-          | (Undefined, _) -> is_save_loop new_d (Some h) tl
-          | (Increasing, Increasing) -> is_save_loop new_d (Some h) tl
-          | (Decreasing, Decreasing) ->is_save_loop new_d (Some h) tl
-          | (_, _) -> false
-    in
-    is_save_loop Undefined None r
+let is_save r = 
+  let rec is_save_loop d p l =
+    match l with
+    | [] -> (Ok `Safe)
+    | h :: tl ->
+      let new_d = get_direction p h in
+      match (d, new_d) with
+        | (Undefined, _) -> is_save_loop new_d (Some h) tl
+        | (Increasing, Increasing) -> is_save_loop new_d (Some h) tl
+        | (Decreasing, Decreasing) ->is_save_loop new_d (Some h) tl
+        | (_, _) -> (Error ((List.length r) - (List.length tl)))
   in
-  get_reports src |> List.filter is_save
+  is_save_loop Undefined None r
+
+let get_save_reports src =
+  get_reports src |> List.filter (fun r -> (is_save r) = (Ok `Safe))
 
