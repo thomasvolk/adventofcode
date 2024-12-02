@@ -1,9 +1,9 @@
 open Core
 
 module File = struct
-
   let read_lines = In_channel.read_lines
+end
 
-  let fold_lines path a f = In_channel.fold_lines (In_channel.create path) ~init:a ~f:f
-
+module Resource = struct
+  let read_lines name = File.read_lines ("../resources/input_" ^ name ^ ".txt")
 end
