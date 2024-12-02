@@ -9,7 +9,6 @@ let get_direction op c = match op with
     | 1 | 2 | 3 -> Increasing
     | _ -> Invalid
 
-
 let get_reports d = 
   let re_report = Perl.compile_pat "\\d+" in
   let parse_line l = 
