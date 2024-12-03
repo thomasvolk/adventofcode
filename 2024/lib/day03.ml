@@ -8,3 +8,10 @@ let get_multiplication_summary src =
     |> List.map (fun (a, b) -> ((int_of_string a), (int_of_string b)))
     |> List.map (fun (a, b) -> a * b)
     |> List.fold_left (+) 0
+
+let get_active_fragments src =
+  let re_do = Perl.compile_pat "do\\(\\)" in
+  let re_dont = Perl.compile_pat "don\\'t\\(\\)" in
+  let data = "do()" ^ (Io.Resource.read_all src) in
+  Re.split re_dont data 
+
