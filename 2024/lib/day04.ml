@@ -1,3 +1,5 @@
+open Re
+
 let explode_string s = List.init (String.length s) (fun i -> String.get s i |> Char.escaped)
 
 let read_matrix src =
@@ -31,3 +33,16 @@ let collection d x y matrix =
     | Vertical -> collect "" 0 (fun n -> (x, y + (w * n)))
     | TopLeftBottomRight -> collect "" 0 (fun n -> (x + n , y + w))
     | TopRightBottomLeft -> collect "" 0 (fun n -> (x - n , y + w))
+
+let xmas_count src =
+  let matrix = read_matrix src in
+  let (w, h) = dimensions matrix in
+  let re_xmas = Perl.compile_pat "XMAS" in
+  let re_samx  = Perl.compile_pat "SAMX" in
+  let count s = 
+    let xmas_cnt = Re.all re_xmas s |> List.length in
+    let samx_cnt = Re.all re_samx s |> List.length in
+    xmas_cnt + samx_cnt
+  in
+  Error "not implemented"
+
