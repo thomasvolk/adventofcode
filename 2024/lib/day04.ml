@@ -1,61 +1,62 @@
-open Re
 
-let explode_string s = List.init (String.length s) (fun i -> String.get s i |> Char.escaped)
+module Point = struct
+  type t = (int * int)  
+  let create x y = (x, y)
+  let x t = fst t
+  let y t = snd t
+  let add a b = create ((x a) + (x b)) ((y a) + (y b))
+end
 
-let read_matrix src =
-  Io.Resource.read_lines src
-   |> List.map explode_string
+module Matrix = struct
 
-type direction = Horizontal | Vertical | TopLeftBottomRight | TopRightBottomLeft
+  type t = int list list
 
-let dimensions matrix = 
-  let w = List.length (List.nth matrix 0) in
-  let h = List.length matrix in 
-  (w, h)
+  let explode_string s = List.init (String.length s) (fun i -> String.get s i |> Char.escaped)
 
-let get x y matrix = 
-  match List.nth_opt matrix y with
-    | None -> None
-    | Some r -> match List.nth_opt r x with
+  let read src =
+    Io.Resource.read_lines src
+    |> List.map explode_string
+
+  let get p m = 
+    match List.nth_opt m (Point.y p) with
       | None -> None
-      | v -> v
+      | Some r -> match List.nth_opt r (Point.x p) with
+        | None -> None
+        | v -> v
 
-let collect d x y matrix =
-  let (w, _h) = dimensions matrix in
-  let rec collect_loop a n get_pos =
-    let (x, y) = get_pos n in
-    match get x y matrix with
+  let dimensions m = 
+    let w = List.length (List.nth m 0) in
+    let h = List.length m in 
+    (w, h)
+
+end
+
+let value = function
+  | "XMAS" | "SAMX" -> 1
+  | _ -> 0
+
+let words p m =
+  let rec walk_loop a step p f =
+    match Matrix.get p m with
       | None -> a
-      | Some v -> collect_loop (a ^ v) (n + 1) get_pos
+      | Some _ when step <= 0 -> a
+      | Some v -> walk_loop (a ^ v) (step - 1) (Point.add p (f p)) f
   in
-  match d with
-    | Horizontal -> collect_loop "" 0 (fun n -> (x + n, y))
-    | Vertical -> collect_loop "" 0 (fun n -> (x, y + (w * n)))
-    | TopLeftBottomRight -> collect_loop "" 0 (fun n -> (x + n , y + w))
-    | TopRightBottomLeft -> collect_loop "" 0 (fun n -> (x - n , y + w))
+  let walk = walk_loop "" 4 in
+  [(0, -1); (1, -1); (1, 0); (1, 1); (0, 1); (-1, 1); (-1, 0); (-1, -1)]
+      |> List.map (fun d -> walk p (fun p -> Point.add p d))
 
-let re_xmas = Perl.compile_pat "XMAS"
-let re_samx  = Perl.compile_pat "SAMX"
+let count _p _m = 0
 
-let count s = 
-  let xmas_cnt = Re.all re_xmas s |> List.length in
-  let samx_cnt = Re.all re_samx s |> List.length in
-  xmas_cnt + samx_cnt
-
-let collect_and_count d x y matrix = collect d x y matrix |> count
-
-let count_trough_all_paths matrix =
-  let (w, h) = dimensions matrix in
-  let rec walk_down ?(stop = 0) c i f =
-    match i with
-     | i when i < stop -> c
-     | _ -> walk_down ~stop:stop (c + (f i)) (i - 1) f
+let count_all src =
+  let m = Matrix.read src in
+  let (w, h) = Matrix.dimensions m in
+  let cols v r = function
+    | c when c <= 0 -> v
+    | c -> v + (count (Point.create c r) m)
   in
-  let cnt_rows = walk_down 0 (h - 1) (fun y -> collect_and_count Vertical 0 y matrix) in
-  let cnt_cols = walk_down 0 (w - 1) (fun x -> collect_and_count Horizontal x 0 matrix) in
-  let cnt_tlbr_y = walk_down ~stop:1 0 (h - 1) (fun y -> collect_and_count TopLeftBottomRight 0 y matrix) in
-  let cnt_tlbr_x = walk_down 0 (w - 1) (fun x -> collect_and_count TopLeftBottomRight x 0 matrix) in
-  let cnt_trbl_y = walk_down ~stop:1 0 (h - 1) (fun y -> collect_and_count TopRightBottomLeft 0 y matrix) in
-  let cnt_trbl_x = walk_down 0 (w - 1) (fun x -> collect_and_count TopRightBottomLeft x 0 matrix) in
-  cnt_cols + cnt_rows + cnt_tlbr_x + cnt_tlbr_y + cnt_trbl_x + cnt_trbl_y
-
+  let rows v = function
+    | r when r <= 0 -> v
+    | r -> cols v r w
+  in
+  rows 0 h
