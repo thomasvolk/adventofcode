@@ -5,6 +5,7 @@ let tests =
   "Day04" >::: [
     "a" >:: (fun _ -> 
       assert_equal ~printer:string_of_int 18 (Day04.count_all "day04-sample");
+      assert_equal ~printer:string_of_int 18 (Day04.count_all "day04");
     );
   ]
 
