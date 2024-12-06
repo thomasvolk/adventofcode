@@ -47,12 +47,13 @@ module Matrix = struct
   let map f t = List.mapi (fun i v -> f (coordinates i t) v) t.values
 end
 
-module Word = struct
-  include String
-  let of_points l = l |> List.map Point.to_string |> List.sort compare |> String.concat "-"
+module Register = struct
+  module Entry = struct
+    include String
+    let of_points l = l |> List.map Point.to_string |> List.sort compare |> String.concat "-"
+  end
+  include Set.Make(Entry)
 end
-
-module WordRegister = Set.Make(Word)
 
 let has_xmas_match = function
   | "XMAS" | "SAMX" -> true
@@ -73,9 +74,9 @@ let count_all src =
   Matrix.map (fun p _ -> words p m) m
    |> List.flatten
    |> List.filter (fun (w, _) -> has_xmas_match w)
-   |> List.map (fun (_, c) -> Word.of_points c)
-   |> WordRegister.of_list
-   |> WordRegister.to_list
+   |> List.map (fun (_, c) -> Register.Entry.of_points c)
+   |> Register.of_list
+   |> Register.to_list
    |> List.length
 
 
