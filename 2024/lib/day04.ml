@@ -11,57 +11,76 @@ end
 
 module Matrix = struct
 
-  type t = int list list
+  type t = { 
+    width: int;
+    height: int;
+    values: string list;
+  }
 
   let explode_string s = List.init (String.length s) (fun i -> String.get s i |> Char.escaped)
 
-  let read src =
-    Io.Resource.read_lines src
-    |> List.map explode_string
-
-  let get p m = 
-    match Point.positive p with
-      | false -> None
-      | true -> match List.nth_opt m (Point.y p) with
-        | None -> None
-        | Some r -> match List.nth_opt r (Point.x p) with
-          | None -> None
-          | v -> v
-
-  let dimensions m = 
+  let create src =
+    let m = Io.Resource.read_lines src
+    |> List.map explode_string in
     let w = List.length (List.nth m 0) in
     let h = List.length m in 
-    (w, h)
+    {
+      width = w;
+      height = h;
+      values = m |> List.flatten;
+    }
 
+  let size t = (t.width * t.height) 
+
+  let position p t = match (t.width * (Point.y p)) + (Point.x p) with 
+    | i when i < 0 -> None
+    | i when i >= size t -> None
+    | i -> Some i
+
+  let coordinates i t = Point.create (i mod t.width) (i / t.width) 
+
+  let get p t = 
+    match position p t with
+      | None -> None
+      | Some i -> List.nth_opt t.values i
+
+  let paths start t =
+    let rec walk_loop coordinates word step p dp =
+      match get p t with
+        | Some v when step > 0 -> walk_loop (coordinates @ [p]) (word ^ v) (step - 1) (Point.add p dp) dp
+        | _ -> (word, coordinates)
+    in
+    let walk = walk_loop [] "" 4 in
+    [(0, -1); (1, -1); (1, 0); (1, 1); (0, 1); (-1, 1); (-1, 0); (-1, -1)]
+        |> List.map (walk start)
+
+  let walk is_start t = t.values
+    |> List.mapi (fun i v ->
+        match is_start v with
+          | true -> Some (paths (coordinates i t) t)
+          | false -> None
+      )
+    |> List.filter Option.is_some
+    |> List.map Option.get
 end
 
-let value = function
-  | "XMAS" | "SAMX" -> 1
-  | _ -> 0
+let string_of_coordinates l = l |> List.map Point.to_string |> List.sort compare |> String.concat "-"
 
-let words p m =
-  let rec walk_loop a step p dp =
-    match Matrix.get p m with
-      | None -> a
-      | Some _ when step <= 0 -> a
-      | Some v -> walk_loop (a ^ v) (step - 1) (Point.add p dp) dp
-  in
-  let walk = walk_loop "" 4 in
-  [(0, -1); (1, -1); (1, 0); (1, 1); (0, 1); (-1, 1); (-1, 0); (-1, -1)]
-      |> List.map (fun dp -> walk p dp)
+let has_xmas_match = function
+  | "XMAS" | "SAMX" -> true
+  | _ -> false
 
-let count p m = 
-  words p m |> List.map value |> List.fold_left (+) 0
+let is_start = function
+  | "X" | "S" -> true
+  | _ -> false
 
-let count_all src =
-  let m = Matrix.read src in
-  let (w, h) = Matrix.dimensions m in
-  let cols v r = function
-    | c when c < 0 -> v
-    | c -> v + (count (Point.create (c - 1) r) m)
-  in
-  let rows v = function
-    | r when r < 0 -> v
-    | r -> cols v (r - 1) w
-  in
-  rows 0 h
+let count_all src = 
+  Matrix.create src
+   |> Matrix.walk is_start
+   |> List.flatten
+   |> List.filter (fun (w, _) -> has_xmas_match w)
+   |> List.map (fun (_, c) -> string_of_coordinates c)
+   |> List.sort_uniq compare
+   |> List.length
+
+
