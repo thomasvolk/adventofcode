@@ -1,12 +1,12 @@
 
 module Point = struct
-  type t = (int * int)  
-  let create x y = (x, y)
-  let x t = fst t
-  let y t = snd t
-  let add a b = create ((x a) + (x b)) ((y a) + (y b))
-  let positive t = (x t) >= 0 && (y t) >= 0
-  let to_string t = "P(" ^ (string_of_int (x t)) ^ "," ^ (string_of_int (y t)) ^ ")"
+  type t = { x: int; y: int }
+  let create x y = { x = x; y = y }
+  let x t = t.x
+  let y t = t.y
+  let move (x, y) a = create (a.x + x) (a.y + y)
+  let to_string t = "P(" ^ (string_of_int t.x) ^ "," ^ (string_of_int t.y) ^ ")"
+  let rotate w h t = create (t.x mod w) (t.y mod h)
 end
 
 module Matrix = struct
@@ -47,7 +47,7 @@ module Matrix = struct
   let paths start t =
     let rec walk_loop coordinates word step p dp =
       match get p t with
-        | Some v when step > 0 -> walk_loop (coordinates @ [p]) (word ^ v) (step - 1) (Point.add p dp) dp
+        | Some v when step > 0 -> walk_loop (coordinates @ [p]) (word ^ v) (step - 1) (Point.move dp p) dp
         | _ -> (word, coordinates)
     in
     let walk = walk_loop [] "" 4 in
