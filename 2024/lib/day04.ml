@@ -44,7 +44,24 @@ module Matrix = struct
       | None -> None
       | Some i -> List.nth_opt t.values i
 
-  let map f t = List.mapi (fun i v -> f (coordinates i t) v) t.values
+  let paths start t =
+    let rec walk_loop coordinates word step p dp =
+      match get p t with
+        | Some v when step > 0 -> walk_loop (coordinates @ [p]) (word ^ v) (step - 1) (Point.add p dp) dp
+        | _ -> (word, coordinates)
+    in
+    let walk = walk_loop [] "" 4 in
+    [(0, -1); (1, -1); (1, 0); (1, 1); (0, 1); (-1, 1); (-1, 0); (-1, -1)]
+        |> List.map (walk start)
+
+  let walk is_start t = t.values
+    |> List.mapi (fun i v ->
+        match is_start v with
+          | true -> Some (paths (coordinates i t) t)
+          | false -> None
+      )
+    |> List.filter Option.is_some
+    |> List.map Option.get
 end
 
 let string_of_coordinates l = l |> List.map Point.to_string |> List.sort compare |> String.concat "-"
@@ -53,19 +70,13 @@ let has_xmas_match = function
   | "XMAS" | "SAMX" -> true
   | _ -> false
 
-let words start m =
-  let rec walk_loop coordinates word step p dp =
-    match Matrix.get p m with
-      | Some v when step > 0 -> walk_loop (coordinates @ [p]) (word ^ v) (step - 1) (Point.add p dp) dp
-      | _ -> (word, coordinates)
-  in
-  let walk = walk_loop [] "" 4 in
-  [(0, -1); (1, -1); (1, 0); (1, 1); (0, 1); (-1, 1); (-1, 0); (-1, -1)]
-      |> List.map (walk start)
+let is_start = function
+  | "X" | "S" -> true
+  | _ -> false
 
 let count_all src = 
-  let m = Matrix.create src in
-  Matrix.map (fun p _ -> words p m) m
+  Matrix.create src
+   |> Matrix.walk is_start
    |> List.flatten
    |> List.filter (fun (w, _) -> has_xmas_match w)
    |> List.map (fun (_, c) -> string_of_coordinates c)
