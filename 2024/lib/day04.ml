@@ -49,7 +49,7 @@ end
 
 module Word = struct
   include String
-  let of_points l = l |> List.map Point.to_string |> String.concat "-"
+  let of_points l = l |> List.map Point.to_string |> List.sort compare |> String.concat "-"
 end
 
 module WordRegister = Set.Make(Word)
