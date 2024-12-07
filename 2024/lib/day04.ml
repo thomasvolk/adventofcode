@@ -72,13 +72,13 @@ end
 let re_xmas = Re.Perl.compile_pat "XMAS"
 let re_samx = Re.Perl.compile_pat "SAMX"
 
-let count s = (Re.all re_xmas s |> List.length) + (Re.all re_samx s |> List.length)
+let count_xmas s = (Re.all re_xmas s |> List.length) + (Re.all re_samx s |> List.length)
 
-let count_all src = 
+let count_all_xmas src = 
   let m = Matrix.create src in
   (Matrix.rows m) 
     @ (Matrix.cols m) 
     @ (Matrix.dia_tl_br m) 
     @ (Matrix.dia_tr_bl m)
-    |> List.map count
+    |> List.map count_xmas
     |> List.fold_left (+) 0
