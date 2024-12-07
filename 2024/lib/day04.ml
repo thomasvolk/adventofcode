@@ -64,8 +64,8 @@ module Matrix = struct
     @ (range 0 (t.width - 1) |> List.map (fun x -> path (Point.create x 0) (1, 1) t))
 
   let dia_tr_bl t = 
-      (range 1 (t.height - 1) |> List.map (fun y -> path (Point.create 0 y) (1 ,-1) t))
-    @ (range 0 (t.width - 1)  |> List.map (fun x -> path (Point.create x (t.height - 1)) (1, -1) t))
+      (range 0 (t.height - 1) |> List.map (fun y -> path (Point.create 0 y) (1 ,-1) t))
+    @ (range 1 (t.width - 1)  |> List.map (fun x -> path (Point.create x (t.height - 1)) (1, -1) t))
 
 end
 
@@ -76,6 +76,9 @@ let count s = (Re.all re_xmas s |> List.length) + (Re.all re_samx s |> List.leng
 
 let count_all src = 
   let m = Matrix.create src in
-  (Matrix.rows m) @ (Matrix.cols m) @ (Matrix.dia_tl_br m) @ (Matrix.dia_tr_bl m)
+  (Matrix.rows m) 
+    @ (Matrix.cols m) 
+    @ (Matrix.dia_tl_br m) 
+    @ (Matrix.dia_tr_bl m)
     |> List.map count
     |> List.fold_left (+) 0
