@@ -16,7 +16,7 @@ let tests =
     );
     "b" >:: (fun _ -> 
       assert_equal ~printer:string_of_int 9 (Day04.count_all_x_mas "day04-b-sample");
-      assert_equal ~printer:string_of_int 9 (Day04.count_all_x_mas "day04");
+      assert_equal ~printer:string_of_int 1864 (Day04.count_all_x_mas "day04");
     )
   ]
 
