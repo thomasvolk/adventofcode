@@ -14,6 +14,10 @@ let tests =
       assert_equal ~printer:string_of_int 140 m.height;
       assert_equal ~printer:string_of_int 2468 (Day04.count_all_xmas "day04");
     );
+    "b" >:: (fun _ -> 
+      assert_equal ~printer:string_of_int 9 (Day04.count_all_x_mas "day04-b-sample");
+      assert_equal ~printer:string_of_int 9 (Day04.count_all_x_mas "day04");
+    )
   ]
 
   let _ = run_test_tt_main tests

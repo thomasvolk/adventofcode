@@ -67,6 +67,21 @@ module Matrix = struct
       (range 0 (t.height - 1) |> List.map (fun y -> path (Point.create 0 y) (1 ,-1) t))
     @ (range 1 (t.width - 1)  |> List.map (fun x -> path (Point.create x (t.height - 1)) (1, -1) t))
 
+  let find_all ?(margin = 0) c t =
+    range margin (t.width - margin) 
+      |> List.map (fun x -> 
+            range margin (t.height - margin)
+              |> List.map (fun y -> 
+                    let p = Point.create x y in
+                    (p, get p t)
+                 )
+          )
+      |> List.flatten
+      |> List.filter (fun (_p, v) -> Option.is_some v)
+      |> List.map (fun (p, v) -> (p, Option.get v))
+      |> List.filter (fun (_p, v) -> v = c)
+      |> List.map (fun (p, _) -> p)
+
 end
 
 let re_xmas = Re.Perl.compile_pat "XMAS"
@@ -82,3 +97,19 @@ let count_all_xmas src =
     @ (Matrix.dia_tr_bl m)
     |> List.map count_xmas
     |> List.fold_left (+) 0
+
+let count_all_x_mas src =
+  let m = Matrix.create src in
+  let is_mas a b = match (Matrix.get a m, Matrix.get b m) with
+    | (Some va, Some vb) -> (match va ^ vb with
+                            | "MS" | "SM" -> true
+                            | _ -> false)
+    | _ -> false
+  in
+  let is_x_mas p =
+       is_mas (Point.move (-1, -1) p) (Point.move (1, 1) p) 
+    && is_mas (Point.move (1, -1) p) (Point.move (-1, 1) p) 
+  in
+  Matrix.find_all ~margin:1 "A" m
+    |> List.filter is_x_mas
+    |> List.length
