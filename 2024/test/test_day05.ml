@@ -6,6 +6,7 @@ let tests =
     "a" >:: (fun _ -> 
       let setup = Day05.Setup.create "day05-sample" in
       assert_equal ~printer:string_of_int 21 (List.length (Day05.Setup.rules setup));
+      assert_equal ~printer:string_of_int 6 (List.length (Day05.Setup.updates setup));
     );
   ]
 
