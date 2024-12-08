@@ -4,7 +4,8 @@ open Aoc2024
 let tests =
   "Day05" >::: [
     "a" >:: (fun _ -> 
-      assert_equal ~printer:string_of_int 21 (List.length (Day05.RuleMap.create "day05-sample"));
+      let setup = Day05.Setup.create "day05-sample" in
+      assert_equal ~printer:string_of_int 21 (List.length (Day05.Setup.rules setup));
     );
   ]
 
