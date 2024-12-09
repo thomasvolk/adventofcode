@@ -33,12 +33,14 @@ module Setup = struct
     }
 end
 
-let have_matches a b =
-  let rec loop l = function
-    | [] -> false
-    | h :: tl -> if (List.length (List.find_all ((=) h) l)) = 0 then loop l tl else true
+let intersection a b =
+  let rec loop i l = function
+    | [] -> i
+    | h :: tl -> loop (i @ (List.find_all ((=) h) l)) l tl
   in
-  loop a b
+  loop [] a b
+
+let have_matches a b = List.length (intersection a b) > 0
 
 let pages_after rules page = 
   let rec get_after_loop r = function
