@@ -22,6 +22,7 @@ let tests =
       assert_equal ~printer:string_of_int_list [97; 47; 75] (Day05.pages_before rules 61);
 
       assert_equal ~printer:string_of_int 143 (Day05.process_updates "day05-sample");
+      assert_equal ~printer:string_of_int 5713 (Day05.process_updates "day05");
     );
   ]
 
