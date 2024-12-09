@@ -75,9 +75,9 @@ let process_updates src =
         let mi = middle_item u in
         if validate_update rules u 
         then
-          None
-        else
           Some mi
+        else
+          None
       )
     |> List.filter Option.is_some
     |> List.map Option.get
