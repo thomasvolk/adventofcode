@@ -33,3 +33,20 @@ module Setup = struct
     }
 end
 
+let have_same_items a b =
+  let rec loop l = function
+    | [] -> false
+    | h :: tl -> if (List.length (List.find_all ((=) h) l)) = 0 then loop l tl else true
+  in
+  loop a b
+
+let pages_after _rules _page = [] 
+
+let pages_before _rules _page = [] 
+
+let check_update _rules u = 
+  let rec check_loop before = function
+    | [] -> None
+    | _page :: after -> check_loop before after
+  in
+  check_loop u
