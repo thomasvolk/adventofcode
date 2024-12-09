@@ -52,10 +52,34 @@ let pages_before rules page =
   let switch = List.map (fun (a, b) -> (b, a)) in
   pages_after (switch rules) page
 
-let validate_update _rules u = 
+let validate_update rules u = 
   let rec validate_loop before = function
     | [] -> true
-    | page :: after ->
+    | page :: after -> if 
+           (have_matches after (pages_before rules page))
+        || (have_matches before (pages_after rules page))
+      then
+        false
+      else
         validate_loop (before @ [page]) after
   in
-  validate_loop u
+  validate_loop [] u
+
+let middle_item l = List.nth l ((List.length l) / 2)
+
+let process_updates src =
+  let setup = Setup.create src in
+  let rules = Setup.rules setup in
+  Setup.updates setup
+    |> List.map (fun u ->
+        let mi = middle_item u in
+        if validate_update rules u 
+        then
+          None
+        else
+          Some mi
+      )
+    |> List.filter Option.is_some
+    |> List.map Option.get
+    |> List.fold_left (+) 0
+
