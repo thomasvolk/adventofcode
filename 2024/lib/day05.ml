@@ -33,7 +33,7 @@ module Setup = struct
     }
 end
 
-let have_same_items a b =
+let have_matches a b =
   let rec loop l = function
     | [] -> false
     | h :: tl -> if (List.length (List.find_all ((=) h) l)) = 0 then loop l tl else true
@@ -52,9 +52,10 @@ let pages_before rules page =
   let switch = List.map (fun (a, b) -> (b, a)) in
   pages_after (switch rules) page
 
-let check_update _rules u = 
-  let rec check_loop before = function
-    | [] -> None
-    | _page :: after -> check_loop before after
+let validate_update _rules u = 
+  let rec validate_loop before = function
+    | [] -> true
+    | _page :: after ->
+        validate_loop before after
   in
-  check_loop u
+  validate_loop u
