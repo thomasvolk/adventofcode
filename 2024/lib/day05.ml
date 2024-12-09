@@ -40,9 +40,17 @@ let have_same_items a b =
   in
   loop a b
 
-let pages_after _rules _page = [] 
+let pages_after rules page = 
+  let rec get_after_loop r = function
+    | [] -> r
+    | (b, a) :: tl when b = page -> get_after_loop (r @ [a]) tl
+    | _ :: tl -> get_after_loop r tl
+  in
+  get_after_loop [] rules
 
-let pages_before _rules _page = [] 
+let pages_before rules page = 
+  let switch = List.map (fun (a, b) -> (b, a)) in
+  pages_after (switch rules) page
 
 let check_update _rules u = 
   let rec check_loop before = function
