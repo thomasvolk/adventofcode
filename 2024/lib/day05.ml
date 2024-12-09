@@ -55,7 +55,7 @@ let pages_before rules page =
 let validate_update _rules u = 
   let rec validate_loop before = function
     | [] -> true
-    | _page :: after ->
-        validate_loop before after
+    | page :: after ->
+        validate_loop (before @ [page]) after
   in
   validate_loop u
