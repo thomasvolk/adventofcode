@@ -39,11 +39,12 @@ module Matrix = struct
     in
     let w = List.length (List.nth m 0) in
     let h = List.length m in 
+    let gp = List.nth (find_all "^") 0 in
     {
       width = w;
       height = h;
       obstacles = find_all "#";
-      guard = Guard.create (List.nth (find_all "^") 0) North
+      guard = Guard.create gp North
     }
 
   let size t = (t.width * t.height) 
