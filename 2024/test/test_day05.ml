@@ -25,7 +25,7 @@ let tests =
       assert_equal ~printer:string_of_int 143 (Day05.process_updates "day05-sample");
       assert_equal ~printer:string_of_int 5713 (Day05.process_updates "day05");
     );
-    "a" >:: (fun _ -> 
+    "b" >:: (fun _ -> 
       assert_equal ~printer:string_of_int 123 (Day05.repair_updates "day05-sample");
       assert_equal ~printer:string_of_int 5180 (Day05.repair_updates "day05");
     )
