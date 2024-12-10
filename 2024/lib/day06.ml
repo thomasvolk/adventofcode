@@ -98,6 +98,6 @@ end
 let count_steps src =
   let m = Matrix.create src in
   let g = Guard.create (Matrix.guard m) North in
-  List.length (Guard.move m g)
+  List.length (List.sort_uniq compare (Guard.move m g))
 
 
