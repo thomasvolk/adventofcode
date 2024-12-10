@@ -40,34 +40,39 @@ let intersection a b =
   in
   loop [] a b
 
-let have_matches a b = List.length (intersection a b) > 0
-
-let pages_after rules page = 
-  let rec get_after_loop r = function
-    | [] -> r
-    | (b, a) :: tl when b = page -> get_after_loop (r @ [a]) tl
-    | _ :: tl -> get_after_loop r tl
-  in
-  get_after_loop [] rules
-
-let pages_before rules page = 
-  let switch = List.map (fun (a, b) -> (b, a)) in
-  pages_after (switch rules) page
-
-let validate_update rules u = 
-  let rec validate_loop before = function
-    | [] -> true
-    | page :: after -> if 
-           (have_matches after (pages_before rules page))
-        || (have_matches before (pages_after rules page))
-      then
-        false
-      else
-        validate_loop (before @ [page]) after
-  in
-  validate_loop [] u
-
 let middle_item l = List.nth l ((List.length l) / 2)
+
+module Validation = struct
+  type t = 
+    | Ok
+    | MustBeBefore of int
+    | MustBeAfter of int
+  
+  let pages_after rules page = 
+    let rec get_after_loop r = function
+      | [] -> r
+      | (b, a) :: tl when b = page -> get_after_loop (r @ [a]) tl
+      | _ :: tl -> get_after_loop r tl
+    in
+    get_after_loop [] rules
+
+  let pages_before rules page = 
+    let switch = List.map (fun (a, b) -> (b, a)) in
+    pages_after (switch rules) page
+
+  let validate_update rules u = 
+    let rec validate_loop before = function
+      | [] -> Ok
+      | page :: after -> match (
+                                  List.nth_opt (intersection after (pages_before rules page)) 0
+                                , List.nth_opt (intersection before (pages_after rules page)) 0
+                                ) with
+          | (None, None) -> validate_loop (before @ [page]) after
+          | (Some b, _) -> MustBeAfter b 
+          | (_, Some a) -> MustBeBefore a 
+    in
+    validate_loop [] u
+end
 
 let process_updates src =
   let setup = Setup.create src in
@@ -75,11 +80,9 @@ let process_updates src =
   Setup.updates setup
     |> List.map (fun u ->
         let mi = middle_item u in
-        if validate_update rules u 
-        then
-          Some mi
-        else
-          None
+        match Validation.validate_update rules u with
+          | Ok -> Some mi
+          | _ -> None
       )
     |> List.filter Option.is_some
     |> List.map Option.get
