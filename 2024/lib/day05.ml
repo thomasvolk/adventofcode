@@ -78,26 +78,22 @@ module Validation = struct
     in
     validate_loop [] u
 
-  let is_valid = function
-    | Ok _ -> true
-    | _ -> false
-
-  let is_invalid v = not (is_valid v)
-
-  let repair = function
+  let rec repair rules u = match validate_update rules u with
     | Ok u -> u
-    | Invalid (MustBeBefore _, _) -> []
-    | Invalid (MustBeAfter _, _) -> []
-  
+    | Invalid (MustBeBefore _, s) -> repair rules ([s.page] @ s.before @ s.after)
+    | Invalid (MustBeAfter _, s) -> repair rules (s.before @ s.after @ [s.page])
 end
 
 let repair_updates src =
   let setup = Setup.create src in
   let rules = Setup.rules setup in
+  let is_invalid u = match Validation.validate_update rules u with
+    | Ok _ -> false
+    | _ -> true
+  in
   Setup.updates setup
-    |> List.map (Validation.validate_update rules) 
-    |> List.filter Validation.is_invalid
-    |> List.map Validation.repair
+    |> List.filter is_invalid
+    |> List.map (Validation.repair rules)
     |> List.map middle_item
     |> List.fold_left (+) 0
 
