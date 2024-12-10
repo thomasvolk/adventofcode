@@ -14,6 +14,7 @@ let tests =
       assert_equal ~printer:string_of_int 4 (m.guard.x);
 
       assert_equal ~printer:string_of_int 41 (Day06.count_steps "day06-sample");
+      assert_equal ~printer:string_of_int 4580 (Day06.count_steps "day06");
     )
   ]
 
