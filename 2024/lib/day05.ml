@@ -43,10 +43,13 @@ let intersection a b =
 let middle_item l = List.nth l ((List.length l) / 2)
 
 module Validation = struct
-  type t = 
-    | Ok
+  type proposal = 
     | MustBeBefore of int
     | MustBeAfter of int
+  type t = { before: int list; page: int; after: int list; proposal: proposal }
+  type result = 
+    | Ok
+    | Invalid of t
   
   let pages_after rules page = 
     let rec get_after_loop r = function
@@ -68,8 +71,8 @@ module Validation = struct
                                 , List.nth_opt (intersection before (pages_after rules page)) 0
                                 ) with
           | (None, None) -> validate_loop (before @ [page]) after
-          | (Some b, _) -> MustBeAfter b 
-          | (_, Some a) -> MustBeBefore a 
+          | (Some b, _) -> Invalid { before = before; page = page; after = after; proposal = (MustBeAfter b) }
+          | (_, Some a) -> Invalid { before = before; page = page; after = after; proposal = (MustBeBefore a) }
     in
     validate_loop [] u
 end
