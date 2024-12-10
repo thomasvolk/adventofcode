@@ -9,12 +9,19 @@ module Point = struct
   let inside w h t = t.x < w && t.y < h && t.x >= 0 && t.y >= 0
 end
 
+module Guard = struct
+  type direction = North | East | South | West
+  type t = { position: Point.t; direction: direction }
+
+  let create p d = { position = p; direction = d }
+end
+
 module Matrix = struct
   type t = { 
     width: int;
     height: int;
     obstacles: Point.t list;
-    guard: Point.t
+    guard: Guard.t
   }
 
   let explode_string s = List.init (String.length s) (fun i -> String.get s i |> Char.escaped)
@@ -36,7 +43,7 @@ module Matrix = struct
       width = w;
       height = h;
       obstacles = find_all "#";
-      guard = List.nth (find_all "^") 0
+      guard = Guard.create (List.nth (find_all "^") 0) North
     }
 
   let size t = (t.width * t.height) 
