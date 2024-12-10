@@ -10,8 +10,10 @@ let tests =
       assert_equal ~printer:string_of_int 10 m.height;
       assert_equal ~printer:string_of_int 8 (List.length m.obstacles);
       let open Day06.Point in
-      assert_equal ~printer:string_of_int 6 (m.guard.position.y);
-      assert_equal ~printer:string_of_int 4 (m.guard.position.x);
+      assert_equal ~printer:string_of_int 6 (m.guard.y);
+      assert_equal ~printer:string_of_int 4 (m.guard.x);
+
+      assert_equal ~printer:string_of_int 41 (Day06.count_steps "day06-sample");
     )
   ]
 

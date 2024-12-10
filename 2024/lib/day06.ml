@@ -9,19 +9,12 @@ module Point = struct
   let inside w h t = t.x < w && t.y < h && t.x >= 0 && t.y >= 0
 end
 
-module Guard = struct
-  type direction = North | East | South | West
-  type t = { position: Point.t; direction: direction }
-
-  let create p d = { position = p; direction = d }
-end
-
 module Matrix = struct
   type t = { 
     width: int;
     height: int;
     obstacles: Point.t list;
-    guard: Guard.t
+    guard: Point.t
   }
 
   let explode_string s = List.init (String.length s) (fun i -> String.get s i |> Char.escaped)
@@ -39,16 +32,72 @@ module Matrix = struct
     in
     let w = List.length (List.nth m 0) in
     let h = List.length m in 
-    let gp = List.nth (find_all "^") 0 in
+    let g = List.nth (find_all "^") 0 in
     {
       width = w;
       height = h;
       obstacles = find_all "#";
-      guard = Guard.create gp North
+      guard = g
     }
 
   let size t = (t.width * t.height) 
 
+  let width m = m.width
+
+  let height m = m.height
+
+  let guard m = m.guard
+
   let coordinates i t = Point.create (i mod t.width) (i / t.width) 
+
+  let has_obstacle p m = List.exists ((=) p) m.obstacles
 end
+
+module Guard = struct
+  type direction = North | East | South | West
+  type t = { position: Point.t; direction: direction }
+  type result = Outside | Turned of t | Moved of t
+
+  let create p d = { position = p; direction = d }
+
+  let turn_direction d = match d with
+    | North -> East
+    | East  -> South
+    | South -> West
+    | West  -> North
+
+  let next_point g = match g.direction with
+    | North -> Point.move (0, -1) g.position
+    | East  -> Point.move (1,  0) g.position
+    | South -> Point.move (0,  1) g.position
+    | West  -> Point.move (-1, 0) g.position
+
+  let next m g = 
+    let n = next_point g in
+    if Point.inside (Matrix.width m) (Matrix.height m) n
+    then
+      if Matrix.has_obstacle n m
+      then
+        Turned (create g.position (turn_direction g.direction))
+      else
+        Moved (create n g.direction)
+    else
+      Outside
+
+  let move m g =
+    let rec move_loop path m g =
+      match next m g with
+        | Turned ng -> move_loop path m ng
+        | Moved  ng -> move_loop (path @ [g.position]) m ng
+        | Outside -> path
+    in
+    move_loop [] m g
+
+end
+
+let count_steps src =
+  let m = Matrix.create src in
+  let g = Guard.create (Matrix.guard m) North in
+  List.length (Guard.move m g)
+
 
