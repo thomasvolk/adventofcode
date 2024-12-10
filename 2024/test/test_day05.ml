@@ -19,8 +19,8 @@ let tests =
       assert_equal ~printer:string_of_int_list [] (Day05.intersection [] [9]);
       assert_equal ~printer:string_of_int_list [] (Day05.intersection [7; 0; 5] [1; 2; 3]);
       assert_equal ~printer:string_of_int 6 (List.length (Day05.Setup.updates setup));
-      assert_equal ~printer:string_of_int_list [13; 53; 29] (Day05.pages_after rules 61);
-      assert_equal ~printer:string_of_int_list [97; 47; 75] (Day05.pages_before rules 61);
+      assert_equal ~printer:string_of_int_list [13; 53; 29] (Day05.Validation.pages_after rules 61);
+      assert_equal ~printer:string_of_int_list [97; 47; 75] (Day05.Validation.pages_before rules 61);
 
       assert_equal ~printer:string_of_int 143 (Day05.process_updates "day05-sample");
       assert_equal ~printer:string_of_int 5713 (Day05.process_updates "day05");
