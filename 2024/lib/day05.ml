@@ -46,10 +46,10 @@ module Validation = struct
   type proposal = 
     | MustBeBefore of int
     | MustBeAfter of int
-  type t = { before: int list; page: int; after: int list; proposal: proposal }
-  type result = 
-    | Ok
-    | Invalid of t
+  type state = { before: int list; page: int; after: int list; }
+  type t = 
+    | Ok of int list
+    | Invalid of proposal * state
   
   let pages_after rules page = 
     let rec get_after_loop r = function
@@ -65,17 +65,42 @@ module Validation = struct
 
   let validate_update rules u = 
     let rec validate_loop before = function
-      | [] -> Ok
-      | page :: after -> match (
-                                  List.nth_opt (intersection after (pages_before rules page)) 0
-                                , List.nth_opt (intersection before (pages_after rules page)) 0
-                                ) with
-          | (None, None) -> validate_loop (before @ [page]) after
-          | (Some b, _) -> Invalid { before = before; page = page; after = after; proposal = (MustBeAfter b) }
-          | (_, Some a) -> Invalid { before = before; page = page; after = after; proposal = (MustBeBefore a) }
+      | [] -> Ok u
+      | page :: after -> 
+            let s = { before = before; page = page; after = after } in
+            match (
+                List.nth_opt (intersection after (pages_before rules page)) 0
+              , List.nth_opt (intersection before (pages_after rules page)) 0
+            ) with
+              | (None, None) -> validate_loop (before @ [page]) after
+              | (Some b, _) -> Invalid ((MustBeAfter b), s)
+              | (_, Some a) -> Invalid ((MustBeBefore a), s)
     in
     validate_loop [] u
+
+  let is_valid = function
+    | Ok _ -> true
+    | _ -> false
+
+  let is_invalid v = not (is_valid v)
+
+  let repair = function
+    | Ok u -> u
+    | Invalid (MustBeBefore _, _) -> []
+    | Invalid (MustBeAfter _, _) -> []
+  
 end
+
+let repair_updates src =
+  let setup = Setup.create src in
+  let rules = Setup.rules setup in
+  Setup.updates setup
+    |> List.map (Validation.validate_update rules) 
+    |> List.filter Validation.is_invalid
+    |> List.map Validation.repair
+    |> List.map middle_item
+    |> List.fold_left (+) 0
+
 
 let process_updates src =
   let setup = Setup.create src in
@@ -84,7 +109,7 @@ let process_updates src =
     |> List.map (fun u ->
         let mi = middle_item u in
         match Validation.validate_update rules u with
-          | Ok -> Some mi
+          | Ok _ -> Some mi
           | _ -> None
       )
     |> List.filter Option.is_some
