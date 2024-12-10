@@ -88,10 +88,10 @@ module Guard = struct
     let rec move_loop path m g =
       match next m g with
         | Turned ng -> move_loop path m ng
-        | Moved  ng -> move_loop (path @ [g.position]) m ng
-        | Outside -> path
+        | Moved  ng -> move_loop (path @ [ng.position]) m ng
+        | Outside -> path @ [g.position]
     in
-    move_loop [] m g
+    move_loop [g.position] m g
 
 end
 
