@@ -6,8 +6,14 @@ module Point = struct
   let y t = t.y
   let move (x, y) a = create (a.x + x) (a.y + y)
   let to_string t = "P(" ^ (string_of_int t.x) ^ "," ^ (string_of_int t.y) ^ ")"
-  let inside w h t = t.x < w && t.y < h && t.x >= 0 && t.y >= 0
+  let inside (w, h) t = t.x < w && t.y < h && t.x >= 0 && t.y >= 0
 end
+
+let rec appears ~times e = function
+  | [] -> times <= 0
+  | _ when times <= 0 -> true
+  | h :: tl when h = e -> appears ~times:(times -1) e tl 
+  | _ :: tl -> appears ~times:times e tl 
 
 module Matrix = struct
   type t = { 
@@ -49,9 +55,7 @@ module Matrix = struct
 
   let size t = (t.width * t.height) 
 
-  let width m = m.width
-
-  let height m = m.height
+  let dimensions m = (m.width, m.height)
 
   let guard m = m.guard
 
@@ -85,7 +89,7 @@ module Guard = struct
 
   let next m g = 
     let n = next_point g in
-    if Point.inside (Matrix.width m) (Matrix.height m) n
+    if Point.inside (Matrix.dimensions m) n
     then
       if Matrix.has_obstacle n m
       then
@@ -97,7 +101,7 @@ module Guard = struct
 
   let walk m g =
     let rec loop path m g =
-      if (List.length (List.find_all ((=) g) path)) > 1
+      if appears ~times:2 g path
       then
         Loop path
       else

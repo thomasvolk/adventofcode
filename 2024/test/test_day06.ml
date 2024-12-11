@@ -17,6 +17,11 @@ let tests =
       assert_equal ~printer:string_of_int 4580 (Day06.count_steps "day06");
     );
     "b" >:: (fun _ -> 
+      assert_equal ~printer:string_of_bool true (Day06.appears ~times:2 9 [9;1;3;9;0;9;8]);
+      assert_equal ~printer:string_of_bool true (Day06.appears ~times:2 9 [1;3;9;0;9;8]);
+      assert_equal ~printer:string_of_bool false (Day06.appears ~times:2 9 [1;3;0;9;8]);
+      assert_equal ~printer:string_of_bool false (Day06.appears ~times:2 9 []);
+      assert_equal ~printer:string_of_bool true (Day06.appears ~times:0 9 []);
       assert_equal ~printer:string_of_int 6 (Day06.count_stucked_guards "day06-sample");
       (* inefficient:
          Ran: tests in: 480.82 seconds.
