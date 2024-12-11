@@ -40,6 +40,13 @@ module Matrix = struct
       guard = g
     }
 
+  let add_obstacle o m = {
+      width = m.width;
+      height = m.height;
+      obstacles = m.obstacles @ [o];
+      guard = m.guard
+    }
+
   let size t = (t.width * t.height) 
 
   let width m = m.width
@@ -88,21 +95,43 @@ module Guard = struct
 
   let walk m g =
     let rec loop path m g =
-      match next m g with
-        | Turned ng -> loop path m ng
-        | Moved  ng -> loop (path @ [ng]) m ng
-        | Outside -> path @ [g]
+      if (List.length (List.find_all ((=) g) path)) > 1
+      then
+        None
+      else
+        match next m g with
+          | Turned ng -> loop path m ng
+          | Moved  ng -> loop (path @ [ng]) m ng
+          | Outside -> Some (path @ [g])
     in
     loop [g] m g
 
 end
 
+let unique_path m g =
+  match Guard.walk m g with
+    | None -> []
+    | Some p ->
+      p |> List.map Guard.position
+        |> List.sort_uniq compare
+
+let count_stucked_guards src =
+  let m = Matrix.create src in
+  let g = Guard.create (Matrix.guard m) North in
+  let gp = unique_path m g in
+  let rec find_loop c ol = match ol with
+    | [] -> c
+    | o :: tl ->
+        let nm = Matrix.add_obstacle o m in
+        match Guard.walk nm g with
+          | None -> find_loop (c + 1) tl
+          | Some _ -> find_loop c tl
+  in
+  find_loop 0 gp
+
 let count_steps src =
   let m = Matrix.create src in
   let g = Guard.create (Matrix.guard m) North in
-  Guard.walk m g
-    |> List.map Guard.position
-    |> List.sort_uniq compare
-    |> List.length
+  unique_path m g |> List.length
 
 
