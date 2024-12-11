@@ -18,8 +18,9 @@ let tests =
     );
     "b" >:: (fun _ -> 
       assert_equal ~printer:string_of_int 6 (Day06.count_stucked_guards "day06-sample");
-      (* infinite loop, or inefficient ?
-      assert_equal ~printer:string_of_int 0 (Day06.find_stucked_guards "day06");
+      (* inefficient:
+         Ran: tests in: 480.82 seconds.
+      assert_equal ~printer:string_of_int 1480 (Day06.count_stucked_guards "day06");
       *)
     )
   ]
