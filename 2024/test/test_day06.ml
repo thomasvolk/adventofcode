@@ -15,6 +15,13 @@ let tests =
 
       assert_equal ~printer:string_of_int 41 (Day06.count_steps "day06-sample");
       assert_equal ~printer:string_of_int 4580 (Day06.count_steps "day06");
+    );
+    "b" >:: (fun _ -> 
+      assert_equal ~printer:string_of_int 6 (Day06.count_stucked_guards "day06-sample");
+      (* inefficient:
+         Ran: tests in: 480.82 seconds.
+      assert_equal ~printer:string_of_int 1480 (Day06.count_stucked_guards "day06");
+      *)
     )
   ]
 
