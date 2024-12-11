@@ -2,7 +2,7 @@ open OUnit2
 open Aoc2024
 
 let tests =
-  "Day05" >::: [
+  "Day06" >::: [
     "a" >:: (fun _ -> 
       let m = Day06.Matrix.create "day06-sample" in
       let open Day06.Matrix in
