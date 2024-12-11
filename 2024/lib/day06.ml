@@ -60,6 +60,8 @@ module Guard = struct
 
   let create p d = { position = p; direction = d }
 
+  let position g = g.position
+
   let turn_direction d = match d with
     | North -> East
     | East  -> South
@@ -88,16 +90,19 @@ module Guard = struct
     let rec move_loop path m g =
       match next m g with
         | Turned ng -> move_loop path m ng
-        | Moved  ng -> move_loop (path @ [ng.position]) m ng
-        | Outside -> path @ [g.position]
+        | Moved  ng -> move_loop (path @ [ng]) m ng
+        | Outside -> path @ [g]
     in
-    move_loop [g.position] m g
+    move_loop [g] m g
 
 end
 
 let count_steps src =
   let m = Matrix.create src in
   let g = Guard.create (Matrix.guard m) North in
-  List.length (List.sort_uniq compare (Guard.move m g))
+  Guard.move m g
+    |> List.map Guard.position
+    |> List.sort_uniq compare
+    |> List.length
 
 
