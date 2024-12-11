@@ -64,6 +64,7 @@ module Guard = struct
   type direction = North | East | South | West
   type t = { position: Point.t; direction: direction }
   type result = Outside | Turned of t | Moved of t
+  type path = Loop of t list | Open of t list
 
   let create p d = { position = p; direction = d }
 
@@ -81,6 +82,7 @@ module Guard = struct
     | South -> Point.move (0,  1) g.position
     | West  -> Point.move (-1, 0) g.position
 
+
   let next m g = 
     let n = next_point g in
     if Point.inside (Matrix.width m) (Matrix.height m) n
@@ -97,41 +99,45 @@ module Guard = struct
     let rec loop path m g =
       if (List.length (List.find_all ((=) g) path)) > 1
       then
-        None
+        Loop path
       else
         match next m g with
           | Turned ng -> loop path m ng
           | Moved  ng -> loop (path @ [ng]) m ng
-          | Outside -> Some (path @ [g])
+          | Outside -> Open (path @ [g])
     in
     loop [g] m g
 
-end
+  let walk_path m g = 
+    match walk m g with
+    | Loop p -> p
+    | Open p -> p
 
-let unique_path m g =
-  match Guard.walk m g with
-    | None -> []
-    | Some p ->
-      p |> List.map Guard.position
-        |> List.sort_uniq compare
+end
 
 let count_stucked_guards src =
   let m = Matrix.create src in
   let g = Guard.create (Matrix.guard m) North in
-  let gp = unique_path m g in
+  let gp = Guard.walk_path m g
+   |> List.map Guard.position
+   |> List.sort_uniq compare
+  in
   let rec find_loop c ol = match ol with
     | [] -> c
     | o :: tl ->
         let nm = Matrix.add_obstacle o m in
         match Guard.walk nm g with
-          | None -> find_loop (c + 1) tl
-          | Some _ -> find_loop c tl
+          | Loop _ -> find_loop (c + 1) tl
+          | Open _ -> find_loop c tl
   in
   find_loop 0 gp
 
 let count_steps src =
   let m = Matrix.create src in
   let g = Guard.create (Matrix.guard m) North in
-  unique_path m g |> List.length
+  Guard.walk_path m g
+   |> List.map Guard.position
+   |> List.sort_uniq compare
+   |> List.length
 
 
