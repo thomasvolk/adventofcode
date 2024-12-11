@@ -86,21 +86,21 @@ module Guard = struct
     else
       Outside
 
-  let move m g =
-    let rec move_loop path m g =
+  let walk m g =
+    let rec loop path m g =
       match next m g with
-        | Turned ng -> move_loop path m ng
-        | Moved  ng -> move_loop (path @ [ng]) m ng
+        | Turned ng -> loop path m ng
+        | Moved  ng -> loop (path @ [ng]) m ng
         | Outside -> path @ [g]
     in
-    move_loop [g] m g
+    loop [g] m g
 
 end
 
 let count_steps src =
   let m = Matrix.create src in
   let g = Guard.create (Matrix.guard m) North in
-  Guard.move m g
+  Guard.walk m g
     |> List.map Guard.position
     |> List.sort_uniq compare
     |> List.length
