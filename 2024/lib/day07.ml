@@ -28,6 +28,19 @@ module Equation = struct
                             " numbers=" ^ 
                               (e.numbers |> List.map string_of_int |> String.concat ",") ^ ")"
 
+  let factors numbers =
+    let rec f_loop fa l r =
+      let nf = l |> List.fold_left (+) 0 in
+      let result = fa @ [nf] in 
+      match r with
+        | [] -> result
+        | h :: r -> f_loop result (l @ [h]) r
+    in
+    numbers @
+    (f_loop [] [] numbers)
+      |> List.filter ((!=) 0)
+      |> List.sort_uniq compare
+
   let is_valid e = 
     let sum = e.numbers |> List.fold_left (+) 0 in
     let prd = e.numbers |> List.fold_left (fun a b -> a * b) 1 in
