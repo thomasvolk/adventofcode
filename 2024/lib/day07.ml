@@ -3,18 +3,19 @@ let int_pow a b = Float.pow (float_of_int a) (float_of_int b) |> int_of_float
 let (^^) = int_pow
 let int_log2 n = Float.log2 (float_of_int n) |> int_of_float
 
-let bits n =
+let bits s n =
   let rec b_loop bits p n =
-    let bit = 2 ^^ p in 
-    let on = n - bit >= 0 in
-    let result = bits @ [on] in
-    let nn = if on then n - bit else n in
     match p with
-    | 0 -> result
-    | p -> b_loop result (p - 1) nn
+    | 0 -> bits
+    | p ->
+        let bit = 2 ^^ (p - 1) in 
+        let on = n - bit >= 0 in
+        let result = bits @ [on] in
+        let nn = if on then n - bit else n in
+        b_loop result (p - 1) nn
   in
   let an = Int.abs n in
-  b_loop [] (int_log2 an) an
+  b_loop [] s an
     
 
 module Equation = struct
@@ -46,12 +47,32 @@ module Equation = struct
                             " numbers=" ^ 
                               (e.numbers |> List.map string_of_int |> String.concat ",") ^ ")"
 
+  let to_operator = function
+    | true -> ( + )
+    | false -> ( * )
 
+  let bits_map cnt = 
+    let rec op_loop r = function
+     | 0 -> r
+     | v -> op_loop (r @ [(bits cnt (v - 1))]) (v - 1)
+    in
+    op_loop [] (2 ^^ cnt)
 
   let is_valid e =
+    let rec calculate x bl nl = 
+      match (bl, nl) with
+        | ([], []) -> x
+        | ((b :: btl), (y :: ntl)) -> calculate ((to_operator b) x y) btl ntl
+        | _ -> 0
+    in
     (* we have one operator less then the count of numbers *)
-    let _op_cnt = (2 ^^ (List.length e.numbers)) in
-    true
+    let  op_cnt = (List.length e.numbers) - 1 in
+    let bm = bits_map op_cnt in
+    let results = match e.numbers with
+     | a :: ntl -> bm |> List.map (fun o -> calculate a o ntl)
+     | [] -> []
+    in
+    List.exists ((=) e.test) results
 
 end
 
