@@ -1,4 +1,22 @@
 
+let int_pow a b = Float.pow (float_of_int a) (float_of_int b) |> int_of_float
+let (^^) = int_pow
+let int_log2 n = Float.log2 (float_of_int n) |> int_of_float
+
+let bits n =
+  let rec b_loop bits p n =
+    let bit = 2 ^^ p in 
+    let on = n - bit >= 0 in
+    let result = bits @ [on] in
+    let nn = if on then n - bit else n in
+    match p with
+    | 0 -> result
+    | p -> b_loop result (p - 1) nn
+  in
+  let an = Int.abs n in
+  b_loop [] (int_log2 an) an
+    
+
 module Equation = struct
   type t = { test: int; numbers: int list }
 
@@ -28,27 +46,13 @@ module Equation = struct
                             " numbers=" ^ 
                               (e.numbers |> List.map string_of_int |> String.concat ",") ^ ")"
 
-  let factors numbers =
-    let rec f_loop fa l r =
-      let nf = l |> List.fold_left (+) 0 in
-      let result = fa @ [nf] in 
-      match r with
-        | [] -> result
-        | h :: r -> f_loop result (l @ [h]) r
-    in
-    numbers @
-    (f_loop [] [] numbers)
-      |> List.filter ((!=) 0)
-      |> List.sort_uniq compare
 
-  let is_valid e = 
-    let sum = e.numbers |> List.fold_left (+) 0 in
-    let prd = e.numbers |> List.fold_left (fun a b -> a * b) 1 in
-    if sum > e.test || prd < e.test
-    then 
-      false
-    else
-      true
+
+  let is_valid e =
+    (* we have one operator less then the count of numbers *)
+    let _op_cnt = (2 ^^ (List.length e.numbers)) in
+    true
+
 end
 
 let sum_all_valid_equations src =
