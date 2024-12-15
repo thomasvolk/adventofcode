@@ -1,7 +1,6 @@
 
 let int_pow a b = Float.pow (float_of_int a) (float_of_int b) |> int_of_float
 let (^^) = int_pow
-let int_log2 n = Float.log2 (float_of_int n) |> int_of_float
 
 let bits s n =
   let rec b_loop bits p n =

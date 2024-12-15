@@ -17,7 +17,7 @@ let tests =
       assert_equal [[true]; [false]] (Day07.Equation.bits_map 1);
 
       assert_equal ~printer:string_of_int 3749 (Day07.sum_all_valid_equations "day07-sample");
-      assert_equal ~printer:string_of_int 0 (Day07.sum_all_valid_equations "day07");
+      assert_equal ~printer:string_of_int 12839601725877 (Day07.sum_all_valid_equations "day07");
     );
     "b" >:: (fun _ -> 
       assert_equal ~printer:string_of_int 0 0;
