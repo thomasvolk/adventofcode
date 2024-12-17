@@ -8,9 +8,9 @@ let bits s n =
     | 0 -> bits
     | p ->
         let bit = 2 ^^ (p - 1) in 
-        let on = n - bit >= 0 in
-        let result = bits @ [on] in
-        let nn = if on then n - bit else n in
+        let v = if n - bit >= 0 then 1 else 0 in
+        let result = bits @ [v] in
+        let nn = n - (bit * v) in
         b_loop result (p - 1) nn
   in
   let an = Int.abs n in
@@ -47,8 +47,8 @@ module Equation = struct
                               (e.numbers |> List.map string_of_int |> String.concat ",") ^ ")"
 
   let to_operator = function
-    | true -> ( + )
-    | false -> ( * )
+    | 0 -> ( * )
+    | _ -> ( + )
 
   let bits_map cnt = 
     let rec op_loop r = function
