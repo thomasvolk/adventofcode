@@ -2,6 +2,8 @@
 let int_pow a b = Float.pow (float_of_int a) (float_of_int b) |> int_of_float
 let (^^) = int_pow
 
+let concat a b = (string_of_int a) ^ (string_of_int b) |> int_of_string
+
 let bits ?(base=2) s n =
   let rec b_loop bits p n =
     match p with
@@ -55,16 +57,17 @@ module Equation = struct
 
   let to_operator = function
     | 0 -> ( * )
-    | _ -> ( + )
+    | 1 -> ( + )
+    | _ -> concat
 
-  let bits_map cnt = 
+  let bits_map ?(base = 2) cnt = 
     let rec op_loop r = function
      | 0 -> r
-     | v -> op_loop (r @ [(bits cnt (v - 1))]) (v - 1)
+     | v -> op_loop (r @ [(bits ~base:base cnt (v - 1))]) (v - 1)
     in
-    op_loop [] (2 ^^ cnt)
+    op_loop [] (base ^^ cnt)
 
-  let is_valid e =
+  let is_valid ?(base = 2) e =
     let rec calculate x bl nl = 
       match (bl, nl) with
         | ([], []) -> x
@@ -73,7 +76,7 @@ module Equation = struct
     in
     (* we have one operator less then the count of numbers *)
     let  op_cnt = (List.length e.numbers) - 1 in
-    let bm = bits_map op_cnt in
+    let bm = bits_map ~base:base op_cnt in
     let results = match e.numbers with
      | a :: ntl -> bm |> List.map (fun o -> calculate a o ntl)
      | [] -> []
@@ -85,5 +88,11 @@ end
 let sum_all_valid_equations src =
   Equation.load src
     |> List.filter Equation.is_valid
+    |> List.map Equation.test
+    |> List.fold_left (+) 0
+
+let sum_all_valid_equations_with_concat src =
+  Equation.load src
+    |> List.filter (Equation.is_valid ~base:3)
     |> List.map Equation.test
     |> List.fold_left (+) 0

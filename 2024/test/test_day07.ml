@@ -25,6 +25,8 @@ let tests =
       assert_equal ~printer:string_of_int_list [2; 0] (Day07.bits ~base:3 2 6);
       assert_equal ~printer:string_of_int_list [2; 1] (Day07.bits ~base:3 2 7);
       assert_equal ~printer:string_of_int_list [2; 2] (Day07.bits ~base:3 2 8);
+
+      assert_equal ~printer:string_of_int 11387 (Day07.sum_all_valid_equations_with_concat "day07-sample");
     )
   ]
 
