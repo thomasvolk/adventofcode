@@ -20,7 +20,11 @@ let tests =
       assert_equal ~printer:string_of_int 12839601725877 (Day07.sum_all_valid_equations "day07");
     );
     "b" >:: (fun _ -> 
-      assert_equal ~printer:string_of_int 0 0;
+      assert_equal ~printer:string_of_int_list [1; 1] (Day07.bits ~base:3 2 4);
+      assert_equal ~printer:string_of_int_list [1; 2] (Day07.bits ~base:3 2 5);
+      assert_equal ~printer:string_of_int_list [2; 0] (Day07.bits ~base:3 2 6);
+      assert_equal ~printer:string_of_int_list [2; 1] (Day07.bits ~base:3 2 7);
+      assert_equal ~printer:string_of_int_list [2; 2] (Day07.bits ~base:3 2 8);
     )
   ]
 

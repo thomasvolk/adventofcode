@@ -2,13 +2,20 @@
 let int_pow a b = Float.pow (float_of_int a) (float_of_int b) |> int_of_float
 let (^^) = int_pow
 
-let bits s n =
+let bits ?(base=2) s n =
   let rec b_loop bits p n =
     match p with
     | 0 -> bits
     | p ->
-        let bit = 2 ^^ (p - 1) in 
-        let v = if n - bit >= 0 then 1 else 0 in
+        let bit = base ^^ (p - 1) in 
+        let rec value d = 
+          let r = n - (bit * d) in
+          match r with
+           | r when r >= 0 -> d
+           | r when r < 0 && d > 0 -> value (d - 1)
+           | _ -> 0
+        in
+        let v = value (base - 1) in
         let result = bits @ [v] in
         let nn = n - (bit * v) in
         b_loop result (p - 1) nn
