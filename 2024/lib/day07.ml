@@ -28,6 +28,15 @@ let bits ?(base=2) s n =
   in
   let an = Int.abs n in
   b_loop [] s an
+
+
+let zip_bits ~transform:tranform al bl =
+  let rec tr_loop r = function
+    | ([], _) -> r
+    | (_, []) -> r
+    | (a :: atl, b :: btl) -> tr_loop (r @ [(tranform a b)]) (atl, btl)
+  in
+  tr_loop [] (al, bl)
     
 
 module Equation = struct
@@ -71,20 +80,22 @@ module Equation = struct
     in
     op_loop [] (base ^^ cnt)
 
-  let possible_results ?(base = 2) e =
-    let rec calculate x bl nl = 
+  let calculate bits numbers =
+    let rec calculate_loop x bl nl = 
       match (bl, nl) with
-        | _ when x > e.test -> x
         | ([], []) -> x
-        | ((b :: btl), (y :: ntl)) -> calculate ((to_operator b) x y) btl ntl
+        | ((b :: btl), (y :: ntl)) -> calculate_loop ((to_operator b) x y) btl ntl
         | _ -> 0
     in
+    match numbers with
+     | a :: ntl -> calculate_loop a bits ntl
+     | [] -> 0
+
+  let possible_results ?(base = 2) e =
     (* we have one operator less then the count of numbers *)
-    let  op_cnt = (List.length e.numbers) - 1 in
+    let op_cnt = (List.length e.numbers) - 1 in
     let bm = bits_map ~base:base op_cnt in
-    match e.numbers with
-     | a :: ntl -> bm |> List.map (fun o -> (calculate a o ntl, o))
-     | [] -> []
+    bm |> List.map (fun o -> (calculate o e.numbers, o))
 
   let is_valid ?(base = 2) e =
     possible_results ~base:base e 
@@ -96,15 +107,27 @@ module Equation = struct
       possible_results ~base:2 e 
       |> List.map (fun (r, _) -> r)
     in
-    if not (List.exists ((=) e.test) results)
+    if List.exists ((=) e.test) results
     then
-      let _lower_results =
+      true
+    else
+      let op_cnt = (List.length e.numbers) - 1 in
+      let cbm = bits_map ~base:2 op_cnt in
+      let transform = zip_bits ~transform:(fun a b -> if b = 1 then 2 else a) in
+      let rec revalidate o = function
+        | [] -> false
+        | bm :: tl -> 
+            let r = calculate (transform o bm) e.numbers in
+            if r = e.test then
+              true
+            else
+              revalidate o tl
+      in
+      let lower_results =
         possible_results ~base:2 e 
         |> List.filter (fun (r, _) -> e.test > r)
       in
-      false
-    else
-      true
+      lower_results |> List.exists (fun (_, o) -> revalidate o cbm)
 end
 
 let sum_all_valid_equations src =
