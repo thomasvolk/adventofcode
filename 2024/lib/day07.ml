@@ -7,7 +7,7 @@ let int_log10 a = Float.log10 (float_of_int a) |> int_of_float
 let concat a b = (string_of_int a) ^ (string_of_int b) |> int_of_string
 *)
 let concat a b = b + (a * (10 * ((int_log10 b) +1))) 
-let (--) = concat
+let (++) = concat
 
 
 module Equation = struct
@@ -47,7 +47,7 @@ module Equation = struct
           (is_valid_loop (c * n) tl) ||
           (is_valid_loop (c + n) tl)
           in
-          if concat then r || is_valid_loop (c -- n) tl else r
+          if concat then r || is_valid_loop (c ++ n) tl else r
     in
     match e.numbers with
       | [] -> false
