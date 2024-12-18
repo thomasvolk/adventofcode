@@ -1,8 +1,12 @@
 
 let int_pow a b = Float.pow (float_of_int a) (float_of_int b) |> int_of_float
 let (^^) = int_pow
+let int_log10 a = Float.log10 (float_of_int a) |> int_of_float
 
+(*
 let concat a b = (string_of_int a) ^ (string_of_int b) |> int_of_string
+*)
+let concat a b = b + (a * (10 * ((int_log10 b) +1))) 
 
 let bits ?(base=2) s n =
   let rec b_loop bits p n =
@@ -67,9 +71,10 @@ module Equation = struct
     in
     op_loop [] (base ^^ cnt)
 
-  let is_valid ?(base = 2) e =
+  let possible_results ?(base = 2) e =
     let rec calculate x bl nl = 
       match (bl, nl) with
+        | _ when x > e.test -> x
         | ([], []) -> x
         | ((b :: btl), (y :: ntl)) -> calculate ((to_operator b) x y) btl ntl
         | _ -> 0
@@ -77,12 +82,29 @@ module Equation = struct
     (* we have one operator less then the count of numbers *)
     let  op_cnt = (List.length e.numbers) - 1 in
     let bm = bits_map ~base:base op_cnt in
-    let results = match e.numbers with
-     | a :: ntl -> bm |> List.map (fun o -> calculate a o ntl)
+    match e.numbers with
+     | a :: ntl -> bm |> List.map (fun o -> (calculate a o ntl, o))
      | [] -> []
-    in
-    List.exists ((=) e.test) results
 
+  let is_valid ?(base = 2) e =
+    possible_results ~base:base e 
+      |> List.map (fun (r, _) -> r)
+      |> List.exists ((=) e.test)
+
+  let is_valid_with_concat e =
+    let results =
+      possible_results ~base:2 e 
+      |> List.map (fun (r, _) -> r)
+    in
+    if not (List.exists ((=) e.test) results)
+    then
+      let _lower_results =
+        possible_results ~base:2 e 
+        |> List.filter (fun (r, _) -> e.test > r)
+      in
+      false
+    else
+      true
 end
 
 let sum_all_valid_equations src =
@@ -93,6 +115,6 @@ let sum_all_valid_equations src =
 
 let sum_all_valid_equations_with_concat src =
   Equation.load src
-    |> List.filter (Equation.is_valid ~base:3)
+    |> List.filter Equation.is_valid_with_concat
     |> List.map Equation.test
     |> List.fold_left (+) 0
