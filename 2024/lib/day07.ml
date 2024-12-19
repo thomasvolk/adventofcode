@@ -3,10 +3,7 @@ let int_pow a b = Float.pow (float_of_int a) (float_of_int b) |> int_of_float
 let (^^) = int_pow
 let int_log10 a = Float.log10 (float_of_int a) |> int_of_float
 
-(*
 let concat a b = (string_of_int a) ^ (string_of_int b) |> int_of_string
-*)
-let concat a b = b + (a * (10 * ((int_log10 b) +1))) 
 let (++) = concat
 
 

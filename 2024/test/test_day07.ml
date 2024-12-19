@@ -11,7 +11,7 @@ let tests =
     );
     "b" >:: (fun _ -> 
       assert_equal ~printer:string_of_int 11387 (Day07.sum_all_valid_equations_with_concat "day07-sample");
-      assert_equal ~printer:string_of_int 0 (Day07.sum_all_valid_equations_with_concat "day07");
+      assert_equal ~printer:string_of_int 149956401519484 (Day07.sum_all_valid_equations_with_concat "day07");
       (*
       *)
     )
