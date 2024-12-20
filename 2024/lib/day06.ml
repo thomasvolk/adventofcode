@@ -9,11 +9,6 @@ module Point = struct
   let inside (w, h) t = t.x < w && t.y < h && t.x >= 0 && t.y >= 0
 end
 
-let rec appears ~times e = function
-  | [] -> times <= 0
-  | _ when times <= 0 -> true
-  | h :: tl when h = e -> appears ~times:(times -1) e tl 
-  | _ :: tl -> appears ~times:times e tl 
 
 module Matrix = struct
   type t = { 
@@ -64,15 +59,13 @@ module Matrix = struct
   let has_obstacle p m = List.exists ((=) p) m.obstacles
 end
 
-module Guard = struct
+
+module Step = struct
   type direction = North | East | South | West
-  type t = { position: Point.t; direction: direction }
-  type result = Outside | Turned of t | Moved of t
-  type path = Loop of t list | Open of t list
+  type t = { position: Point.t; direction: direction; last: t Option.t }
+  type status = Turned | Moved | Start
 
-  let create p d = { position = p; direction = d }
-
-  let position g = g.position
+  let create ~last p d = { position = p; direction = d; last = last }
 
   let turn_direction d = match d with
     | North -> East
@@ -80,68 +73,98 @@ module Guard = struct
     | South -> West
     | West  -> North
 
-  let next_point g = match g.direction with
-    | North -> Point.move (0, -1) g.position
-    | East  -> Point.move (1,  0) g.position
-    | South -> Point.move (0,  1) g.position
-    | West  -> Point.move (-1, 0) g.position
+  let next_point s = match s.direction with
+    | North -> Point.move (0, -1) s.position
+    | East  -> Point.move (1,  0) s.position
+    | South -> Point.move (0,  1) s.position
+    | West  -> Point.move (-1, 0) s.position
 
+  let status s = match s.last with
+    | None -> Start
+    | Some l when l.direction != s.direction -> Turned
+    | _ -> Moved
 
-  let next m g = 
-    let n = next_point g in
-    if Point.inside (Matrix.dimensions m) n
-    then
-      if Matrix.has_obstacle n m
-      then
-        Turned (create g.position (turn_direction g.direction))
-      else
-        Moved (create n g.direction)
-    else
-      Outside
-
-  let walk m g =
-    let rec loop path m g =
-      if appears ~times:2 g path
-      then
-        Loop path
-      else
-        match next m g with
-          | Turned ng -> loop path m ng
-          | Moved  ng -> loop (path @ [ng]) m ng
-          | Outside -> Open (path @ [g])
+  let to_list s =
+    let rec pos_loop r = function
+      | None -> r
+      | Some s' -> pos_loop (r @ [s']) s'.last
     in
-    loop [g] m g
+    pos_loop [] (Some s)
 
-  let walk_path m g = 
-    match walk m g with
-    | Loop p -> p
-    | Open p -> p
+  let position s = s.position
+
+  let is_inside m s = Point.inside (Matrix.dimensions m) s.position
+
+  let is_outside m s = not (is_inside m s)
+
+  let next m s = 
+    let n = next_point s in
+    if Matrix.has_obstacle n m then
+      create ~last:(Some s) s.position (turn_direction s.direction)
+    else
+      create ~last:(Some s) n s.direction
+end
+
+
+module Guard = struct
+  type t = { current: Step.t; start: Step.t }
+
+  let create p d = let start = Step.create ~last:None p d in
+    { current = start; start = start }
+
+  let is_outside m g = Step.is_outside m g.current
+
+  let is_start g = match g.current.last with
+    | None -> true
+    | _ -> false
+
+  let is_loop g = not (is_start g) && g.current = g.start
+
+  let walk m g = 
+    let rec next g' = 
+      if is_outside m g' || is_loop g' then
+        g'
+      else
+        next { current = Step.next m g'.current; start = g.start}
+    in
+    next g
+
+  let step g = g.current
 
 end
 
 let count_stucked_guards src =
   let m = Matrix.create src in
   let g = Guard.create (Matrix.guard m) North in
-  let gp = Guard.walk_path m g
-   |> List.map Guard.position
-   |> List.sort_uniq compare
+  let g' = Guard.walk m g in
+  let gp = Guard.step g' 
+      |> Step.to_list
+      |> List.filter (Step.is_inside m)
+      |> List.map Step.position
+      |> List.sort_uniq compare
   in
   let rec find_loop c ol = match ol with
     | [] -> c
     | o :: tl ->
         let nm = Matrix.add_obstacle o m in
-        match Guard.walk nm g with
-          | Loop _ -> find_loop (c + 1) tl
-          | Open _ -> find_loop c tl
+        let g' = Guard.walk nm g in
+        if Guard.is_loop g' then
+          find_loop (c + 1) tl
+        else
+          find_loop c tl
   in
   find_loop 0 gp
 
 let count_steps src =
   let m = Matrix.create src in
   let g = Guard.create (Matrix.guard m) North in
-  Guard.walk_path m g
-   |> List.map Guard.position
-   |> List.sort_uniq compare
-   |> List.length
+  let g' = Guard.walk m g in
+  Guard.step g' 
+      |> Step.to_list
+      |> List.filter (Step.is_inside m)
+      |> List.map Step.position
+      |> List.sort_uniq compare
+      |> List.length
+  
 
 
