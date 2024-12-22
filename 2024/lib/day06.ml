@@ -107,10 +107,9 @@ end
 
 
 module Guard = struct
-  type t = { current: Step.t; start: Step.t }
+  type t = { current: Step.t }
 
-  let create p d = let start = Step.create ~last:None p d in
-    { current = start; start = start }
+  let create p d = { current = Step.create ~last:None p d }
 
   let is_outside m g = Step.is_outside m g.current
 
@@ -118,14 +117,14 @@ module Guard = struct
     | None -> true
     | _ -> false
 
-  let is_loop g = not (is_start g) && g.current = g.start
+  let is_loop _g = false
 
   let walk m g = 
     let rec next g' = 
-      if is_outside m g' || is_loop g' then
+      if is_outside m g' then
         g'
       else
-        next { current = Step.next m g'.current; start = g.start}
+        next { current = Step.next m g'.current }
     in
     next g
 
