@@ -1,11 +1,9 @@
 
 let int_pow a b = Float.pow (float_of_int a) (float_of_int b) |> int_of_float
 let (^^) = int_pow
-let int_log10 a = Float.log10 (float_of_int a) |> int_of_float
 
 let concat a b = (string_of_int a) ^ (string_of_int b) |> int_of_string
 let (++) = concat
-
 
 module Equation = struct
   type t = { test: int; numbers: int list }
@@ -30,12 +28,6 @@ module Equation = struct
       |> List.map parse
       |> List.filter Option.is_some
       |> List.map Option.get
-
-  let to_string e = "Equation(test=" ^
-                              (string_of_int e.test) ^ 
-                            " numbers=" ^ 
-                              (e.numbers |> List.map string_of_int |> String.concat ",") ^ ")"
-
 
   let is_valid ?(concat = false) e =
     let rec is_valid_loop c = function
