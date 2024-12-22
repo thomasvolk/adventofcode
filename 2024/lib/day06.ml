@@ -87,10 +87,10 @@ end
 
 
 module Guard = struct
-  type t = { current: Move.t; last: t Option.t }
+  type t = { current: Move.t; turns: Move.t list; last: t Option.t }
   type status = Turned | Moved | Start
 
-  let create ?(last = None) p d = { current = (Move.create p d); last = last }
+  let create ?(last = None) ?(turns = []) m = { current = m; turns = turns; last = last }
 
   let is_outside m g = Move.is_outside m g.current
 
@@ -106,18 +106,21 @@ module Guard = struct
     | Some g' when g'.current.direction != g.current.direction -> Turned
     | _ -> Moved
 
-  let is_loop _g = false
+  let is_loop g = 
+    let oc = List.find_all ((=) g.current) g.turns |> List.length in
+    oc > 1
 
   let next m g = 
     let n = Move.next_point g.current in
     if Matrix.has_obstacle n m then
-      create ~last:(Some g) g.current.position (Move.turn g.current.direction)
+      let tm = Move.create g.current.position (Move.turn g.current.direction) in
+      create ~last:(Some g) ~turns:(g.turns @ [tm]) tm
     else
-      create ~last:(Some g) n g.current.direction
+      create ~last:(Some g) ~turns:g.turns (Move.create n g.current.direction)
 
   let walk m g = 
     let rec walk_loop g' = 
-      if is_outside m g' then
+      if (is_outside m g') || (is_loop g') then
         g'
       else
         walk_loop (next m g')
@@ -130,8 +133,8 @@ end
 
 let count_stucked_guards src =
   let m = Matrix.create src in
-  let g = Guard.create (Matrix.guard m) North in
-  let gp = Guard.walk m g
+  let g = Guard.create (Move.create (Matrix.guard m) North) in
+  let path = Guard.walk m g
       |> Guard.to_list
       |> List.map Guard.current
       |> List.filter (Move.is_inside m)
@@ -148,11 +151,12 @@ let count_stucked_guards src =
         else
           find_loop c tl
   in
-  find_loop 0 gp
+  find_loop 0 path
+
 
 let count_steps src =
   let m = Matrix.create src in
-  let g = Guard.create (Matrix.guard m) North in
+  let g = Guard.create (Move.create (Matrix.guard m) North) in
   Guard.walk m g
       |> Guard.to_list
       |> List.map Guard.current
