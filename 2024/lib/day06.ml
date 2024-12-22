@@ -129,6 +129,11 @@ module Guard = struct
 
   let current g = g.current
 
+  let is_inside m g = Move.is_inside m g.current
+
+  let compare_position a b = compare a.current.position b.current.position
+
+  let position g = g.current.position
 end
 
 let count_stucked_guards src =
@@ -136,15 +141,13 @@ let count_stucked_guards src =
   let g = Guard.create (Move.create (Matrix.guard m) North) in
   let path = Guard.walk m g
       |> Guard.to_list
-      |> List.map Guard.current
-      |> List.filter (Move.is_inside m)
-      |> List.map Move.position
-      |> List.sort_uniq compare
+      |> List.filter (Guard.is_inside m)
+      |> List.sort_uniq Guard.compare_position
   in
   let rec find_loop c ol = match ol with
     | [] -> c
     | o :: tl ->
-        let nm = Matrix.add_obstacle o m in
+        let nm = Matrix.add_obstacle (Guard.position o) m in
         let g' = Guard.walk nm g in
         if Guard.is_loop g' then
           find_loop (c + 1) tl
@@ -159,8 +162,6 @@ let count_steps src =
   let g = Guard.create (Move.create (Matrix.guard m) North) in
   Guard.walk m g
       |> Guard.to_list
-      |> List.map Guard.current
-      |> List.filter (Move.is_inside m)
-      |> List.map Move.position
-      |> List.sort_uniq compare
+      |> List.filter (Guard.is_inside m)
+      |> List.sort_uniq Guard.compare_position
       |> List.length
