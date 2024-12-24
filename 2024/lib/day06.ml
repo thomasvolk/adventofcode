@@ -118,15 +118,6 @@ module Guard = struct
     else
       create ~last:(Some g) ~turns:g.turns (Move.create n g.current.direction)
 
-  let walk m g = 
-    let rec walk_loop g' = 
-      if (is_outside m g') || (is_loop g') then
-        g'
-      else
-        walk_loop (next m g')
-    in
-    walk_loop g
-
   let current g = g.current
 
   let is_inside m g = Move.is_inside m g.current
@@ -136,10 +127,30 @@ module Guard = struct
   let position g = g.current.position
 end
 
+module Walk = struct
+  type t = Open of Guard.t | Loop of Guard.t
+  
+  let guard w = match w with 
+    | Open g -> g
+    | Loop g -> g
+
+  let start m g =
+    let rec walk_loop g' =
+      if Guard.is_outside m g' then
+        Open g'
+      else if Guard.is_loop g' then
+        Loop g'
+      else
+        walk_loop (Guard.next m g')
+    in
+    walk_loop g
+end
+
 let count_stucked_guards src =
   let m = Matrix.create src in
   let g = Guard.create (Move.create (Matrix.guard m) North) in
-  let path = Guard.walk m g
+  let path = Walk.start m g
+      |> Walk.guard
       |> Guard.to_list
       |> List.filter (Guard.is_inside m)
       |> List.sort_uniq Guard.compare_position
@@ -148,11 +159,10 @@ let count_stucked_guards src =
     | [] -> c
     | o :: tl ->
         let nm = Matrix.add_obstacle (Guard.position o) m in
-        let g' = Guard.walk nm g in
-        if Guard.is_loop g' then
-          find_loop (c + 1) tl
-        else
-          find_loop c tl
+        match Walk.start nm g with
+          | Open _ -> find_loop c tl
+          | Loop _ -> find_loop (c + 1) tl
+          
   in
   find_loop 0 path
 
@@ -160,7 +170,8 @@ let count_stucked_guards src =
 let count_steps src =
   let m = Matrix.create src in
   let g = Guard.create (Move.create (Matrix.guard m) North) in
-  Guard.walk m g
+  Walk.start m g
+      |> Walk.guard
       |> Guard.to_list
       |> List.filter (Guard.is_inside m)
       |> List.sort_uniq Guard.compare_position
