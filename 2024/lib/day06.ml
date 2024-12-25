@@ -9,7 +9,6 @@ module Point = struct
   let inside (w, h) t = t.x < w && t.y < h && t.x >= 0 && t.y >= 0
 end
 
-
 module Matrix = struct
   type t = { 
     width: int;
@@ -85,7 +84,6 @@ module Move = struct
   let is_outside m s = not (is_inside m s)
 end
 
-
 module Guard = struct
   type t = { current: Move.t; turns: Move.t list; last: t Option.t }
   type status = Turned | Moved | Start
@@ -106,7 +104,7 @@ module Guard = struct
     | Some g' when g'.current.direction != g.current.direction -> Turned
     | _ -> Moved
 
-  let is_loop g = 
+  let is_in_a_loop g = 
     let oc = List.find_all ((=) g.current) g.turns |> List.length in
     oc > 1
 
@@ -138,7 +136,7 @@ module Walk = struct
     let rec walk_loop g' =
       if Guard.is_outside m g' then
         Open g'
-      else if Guard.is_loop g' then
+      else if Guard.is_in_a_loop g' then
         Loop g'
       else
         walk_loop (Guard.next m g')
