@@ -126,16 +126,16 @@ module Guard = struct
 end
 
 module Walk = struct
-  type t = Open of Guard.t | Loop of Guard.t
+  type t = Outside of Guard.t | Loop of Guard.t
   
   let guard w = match w with 
-    | Open g -> g
+    | Outside g -> g
     | Loop g -> g
 
   let start m g =
     let rec walk_loop g' =
       if Guard.is_outside m g' then
-        Open g'
+        Outside g'
       else if Guard.is_in_a_loop g' then
         Loop g'
       else
@@ -158,7 +158,7 @@ let count_stucked_guards src =
     | o :: tl ->
         let nm = Matrix.add_obstacle (Guard.position o) m in
         match Walk.start nm g with
-          | Open _ -> find_loop c tl
+          | Outside _ -> find_loop c tl
           | Loop _ -> find_loop (c + 1) tl
           
   in
