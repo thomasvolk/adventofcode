@@ -88,7 +88,7 @@ module Guard = struct
   type t = { current: Move.t; turns: Move.t list; last: t Option.t }
   type status = Turned | Moved | Start
 
-  let create ?(last = None) ?(turns = []) m = { current = m; turns = turns; last = last }
+  let create m = { current = m; turns = []; last = None }
 
   let is_outside m g = Move.is_outside m g.current
 
@@ -112,9 +112,9 @@ module Guard = struct
     let n = Move.next_point g.current in
     if Matrix.has_obstacle n m then
       let tm = Move.create g.current.position (Move.turn g.current.direction) in
-      create ~last:(Some g) ~turns:(g.turns @ [tm]) tm
+      { last = (Some g); turns = (g.turns @ [tm]); current =tm }
     else
-      create ~last:(Some g) ~turns:g.turns (Move.create n g.current.direction)
+      { last = (Some g); turns = g.turns; current = (Move.create n g.current.direction) }
 
   let current g = g.current
 
