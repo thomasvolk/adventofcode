@@ -85,10 +85,10 @@ module Move = struct
 end
 
 module Guard = struct
-  type t = { current: Move.t; turns: Move.t list; last: t Option.t }
   type status = Turned | Moved | Start
+  type t = { current: Move.t; turns: Move.t list; last: t Option.t; stat: status }
 
-  let create m = { current = m; turns = []; last = None }
+  let create m = { current = m; turns = []; last = None; stat = Start }
 
   let is_outside m g = Move.is_outside m g.current
 
@@ -112,9 +112,9 @@ module Guard = struct
     let n = Move.next_point g.current in
     if Matrix.has_obstacle n m then
       let tm = Move.create g.current.position (Move.turn g.current.direction) in
-      { last = (Some g); turns = (g.turns @ [tm]); current =tm }
+      { last = (Some g); turns = (g.turns @ [tm]); current = tm; stat = Turned }
     else
-      { last = (Some g); turns = g.turns; current = (Move.create n g.current.direction) }
+      { last = (Some g); turns = g.turns; current = (Move.create n g.current.direction); stat = Moved }
 
   let current g = g.current
 
@@ -144,26 +144,27 @@ module Walk = struct
     walk_loop g
 end
 
+let find_loops m root =
+  let rec find_loop c g =
+    if Guard.is_outside m g then
+      c
+    else
+      let g' = Guard.next m g in
+      match g'.stat with
+        | Moved ->
+          let op = Guard.position g' in
+          let nm = Matrix.add_obstacle op m in
+          (match Walk.start nm root with
+            | Outside _ -> find_loop c g'
+            | Loop _ -> find_loop (c @ [op]) g')
+        | _ -> find_loop c g'
+  in
+  find_loop [] root |> List.sort_uniq compare |> List.length
+
 let count_stucked_guards src =
   let m = Matrix.create src in
   let g = Guard.create (Move.create (Matrix.guard m) North) in
-  let path = Walk.start m g
-      |> Walk.guard
-      |> Guard.to_list
-      |> List.filter (Guard.is_inside m)
-      |> List.sort_uniq Guard.compare_position
-  in
-  let rec find_loop c ol = match ol with
-    | [] -> c
-    | o :: tl ->
-        let nm = Matrix.add_obstacle (Guard.position o) m in
-        match Walk.start nm g with
-          | Outside _ -> find_loop c tl
-          | Loop _ -> find_loop (c + 1) tl
-          
-  in
-  find_loop 0 path
-
+  find_loops m g
 
 let count_steps src =
   let m = Matrix.create src in
