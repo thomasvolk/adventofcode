@@ -145,7 +145,7 @@ module Walk = struct
 end
 
 let find_loops m root =
-  let rec find_loop c g =
+  let rec find_loop pl c g =
     if Guard.is_outside m g then
       c
     else
@@ -153,13 +153,17 @@ let find_loops m root =
       match g'.stat with
         | Moved ->
           let op = Guard.position g' in
-          let nm = Matrix.add_obstacle op m in
-          (match Walk.start nm root with
-            | Outside _ -> find_loop c g'
-            | Loop _ -> find_loop (c @ [op]) g')
-        | _ -> find_loop c g'
+          if List.exists ((=) op) pl then
+            find_loop pl c g'
+          else
+            let nm = Matrix.add_obstacle op m in
+            let pl' = pl @ [op] in
+            (match Walk.start nm g with
+              | Outside _ -> find_loop pl' c g'
+              | Loop _ -> find_loop pl' (c + 1 ) g')
+        | _ -> find_loop pl c g'
   in
-  find_loop [] root |> List.sort_uniq compare |> List.length
+  find_loop [] 0 root
 
 let count_stucked_guards src =
   let m = Matrix.create src in
