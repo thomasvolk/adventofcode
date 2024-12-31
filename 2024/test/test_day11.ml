@@ -17,6 +17,7 @@ let tests =
                                                (Day11.Population.blink_times 6 (Day11.Population.load "day11-sample"));
 
 
+      assert_equal ~printer:string_of_int 55312 (Day11.Population.load "day11-sample" |> Day11.Population.blink_times 25 |> List.length);
       assert_equal ~printer:string_of_int 186996 (Day11.Population.load "day11" |> Day11.Population.blink_times 25 |> List.length);
     );
   ]
