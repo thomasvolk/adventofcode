@@ -59,7 +59,7 @@ module Matrix = struct
 end
 
 
-module Move = struct
+module Vector = struct
   type direction = North | East | South | West
   type t = { position: Point.t; direction: direction }
 
@@ -86,11 +86,11 @@ end
 
 module Guard = struct
   type status = Turned | Moved | Start
-  type t = { current: Move.t; turns: Move.t list; last: t Option.t; stat: status }
+  type t = { vec: Vector.t; turns: Vector.t list; last: t Option.t; stat: status }
 
-  let create m = { current = m; turns = []; last = None; stat = Start }
+  let create m = { vec = m; turns = []; last = None; stat = Start }
 
-  let is_outside m g = Move.is_outside m g.current
+  let is_outside m g = Vector.is_outside m g.vec
 
   let to_list g =
     let rec pos_loop r = function
@@ -99,30 +99,25 @@ module Guard = struct
     in
     pos_loop [] (Some g)
 
-  let status g = match g.last with
-    | None -> Start
-    | Some g' when g'.current.direction != g.current.direction -> Turned
-    | _ -> Moved
-
   let is_in_a_loop g = 
-    let oc = List.find_all ((=) g.current) g.turns |> List.length in
+    let oc = List.find_all ((=) g.vec) g.turns |> List.length in
     oc > 1
 
   let next m g = 
-    let n = Move.next_point g.current in
+    let n = Vector.next_point g.vec in
     if Matrix.has_obstacle n m then
-      let tm = Move.create g.current.position (Move.turn g.current.direction) in
-      { last = (Some g); turns = (g.turns @ [tm]); current = tm; stat = Turned }
+      let tm = Vector.create g.vec.position (Vector.turn g.vec.direction) in
+      { last = (Some g); turns = (g.turns @ [tm]); vec = tm; stat = Turned }
     else
-      { last = (Some g); turns = g.turns; current = (Move.create n g.current.direction); stat = Moved }
+      { last = (Some g); turns = g.turns; vec = (Vector.create n g.vec.direction); stat = Moved }
 
-  let current g = g.current
+  let vec g = g.vec
 
-  let is_inside m g = Move.is_inside m g.current
+  let is_inside m g = Vector.is_inside m g.vec
 
-  let compare_position a b = compare a.current.position b.current.position
+  let compare_position a b = compare a.vec.position b.vec.position
 
-  let position g = g.current.position
+  let position g = g.vec.position
 end
 
 module Walk = struct
@@ -167,12 +162,12 @@ let find_loops m root =
 
 let count_stucked_guards src =
   let m = Matrix.create src in
-  let g = Guard.create (Move.create (Matrix.guard m) North) in
+  let g = Guard.create (Vector.create (Matrix.guard m) North) in
   find_loops m g
 
 let count_steps src =
   let m = Matrix.create src in
-  let g = Guard.create (Move.create (Matrix.guard m) North) in
+  let g = Guard.create (Vector.create (Matrix.guard m) North) in
   Walk.start m g
       |> Walk.guard
       |> Guard.to_list
