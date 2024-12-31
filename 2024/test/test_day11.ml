@@ -4,7 +4,7 @@ open Aoc2024
 let string_of_int_list l = List.map string_of_int l |> String.concat ", "
 
 let tests =
-  "Day07" >::: [
+  "Day11" >::: [
     "a" >:: (fun _ -> 
       assert_equal ~printer:string_of_int_list [125; 17] (Day11.Population.load "day11-sample");
       assert_equal ~printer:string_of_int_list [123; 456] (Day11.Stone.split 123456);
