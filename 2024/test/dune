@@ -7,6 +7,7 @@
    test_day05
    test_day06
    test_day07
+   test_day11
  )
  (deps (glob_files_rec ../resources/*))
  (libraries aoc2024 ounit2))
