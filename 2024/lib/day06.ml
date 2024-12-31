@@ -116,25 +116,21 @@ end
 module VectorSet = Set.Make(Vector)
 
 module Walk = struct
-  type t = Outside of Point.t list | Loop of Point.t list
+  type t = Outside of VectorSet.t | Loop of VectorSet.t
 
   let start m g =
-    let rec walk_loop path turns g' =
+    let rec walk_loop path g' =
       if Guard.is_outside m g' then
         Outside path
       else
-        let (in_loop, turns') = match Guard.stat g' with
-          | Turned -> 
-            let v = Guard.vec g' in
-            (VectorSet.mem v turns, VectorSet.add v turns)
-          | _ -> (false, turns)
-        in
+        let v = Guard.vec g' in
+        let (in_loop, path') = (VectorSet.mem v path, VectorSet.add v path) in
         if in_loop then
           Loop path
         else
-          walk_loop (path @ [Guard.position g']) turns' (Guard.next m g')
+          walk_loop path' (Guard.next m g')
     in
-    walk_loop [] VectorSet.empty g
+    walk_loop VectorSet.empty g
 end
 
 let find_loops m root =
@@ -168,6 +164,8 @@ let count_steps src =
   let g = Guard.create (Vector.create (Matrix.guard m) North) in
   match Walk.start m g with
     | Outside path -> path
+      |> VectorSet.to_list
+      |> List.map Vector.position
       |> List.sort_uniq compare
       |> List.length
     | _ -> 0
