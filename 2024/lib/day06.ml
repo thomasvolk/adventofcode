@@ -63,6 +63,8 @@ module Vector = struct
   type direction = North | East | South | West
   type t = { position: Point.t; direction: direction }
 
+  let compare a b = compare a b
+
   let create p d = { position = p; direction = d }
 
   let turn d = match d with
@@ -86,23 +88,21 @@ end
 
 module Guard = struct
   type status = Turned | Moved | Start
-  type t = { vec: Vector.t; turns: Vector.t list; stat: status }
+  type t = { vec: Vector.t; stat: status }
 
-  let create m = { vec = m; turns = []; stat = Start }
+  let create m = { vec = m; stat = Start }
 
   let is_outside m g = Vector.is_outside m g.vec
 
-  let is_in_a_loop g = 
-    let oc = List.find_all ((=) g.vec) g.turns |> List.length in
-    oc > 1
+  let stat g = g.stat
 
   let next m g = 
     let n = Vector.next_point g.vec in
     if Matrix.has_obstacle n m then
       let tm = Vector.create g.vec.position (Vector.turn g.vec.direction) in
-      { turns = (g.turns @ [tm]); vec = tm; stat = Turned }
+      { vec = tm; stat = Turned }
     else
-      { turns = g.turns; vec = (Vector.create n g.vec.direction); stat = Moved }
+      { vec = (Vector.create n g.vec.direction); stat = Moved }
 
   let vec g = g.vec
 
@@ -113,23 +113,28 @@ module Guard = struct
   let position g = g.vec.position
 end
 
+module VectorSet = Set.Make(Vector)
+
 module Walk = struct
   type t = Outside of Point.t list | Loop of Point.t list
-  
-  let guard w = match w with 
-    | Outside g -> g
-    | Loop g -> g
 
   let start m g =
-    let rec walk_loop path g' =
+    let rec walk_loop path turns g' =
       if Guard.is_outside m g' then
         Outside path
-      else if Guard.is_in_a_loop g' then
-        Loop path
       else
-        walk_loop (path @ [Guard.position g']) (Guard.next m g')
+        let (in_loop, turns') = match Guard.stat g' with
+          | Turned -> 
+            let v = Guard.vec g' in
+            (VectorSet.mem v turns, VectorSet.add v turns)
+          | _ -> (false, turns)
+        in
+        if in_loop then
+          Loop path
+        else
+          walk_loop (path @ [Guard.position g']) turns' (Guard.next m g')
     in
-    walk_loop [] g
+    walk_loop [] VectorSet.empty g
 end
 
 let find_loops m root =

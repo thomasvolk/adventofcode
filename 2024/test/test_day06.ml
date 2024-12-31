@@ -20,7 +20,7 @@ let tests =
     );
     "b" >:: (fun _ -> 
       assert_equal ~printer:string_of_int 6 (Day06.count_stucked_guards "day06-sample");
-      (* takes 24.94 seconds. *)
+      (* takes 44.82 seconds. *)
       assert_equal ~printer:string_of_int 1480 (Day06.count_stucked_guards "day06");
       ()
     )
