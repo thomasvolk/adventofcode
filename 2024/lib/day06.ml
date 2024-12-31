@@ -67,18 +67,6 @@ module Vector = struct
 
   let create p d = { position = p; direction = d }
 
-  let turn d = match d with
-    | North -> East
-    | East  -> South
-    | South -> West
-    | West  -> North
-
-  let next_point s = match s.direction with
-    | North -> Point.move (0, -1) s.position
-    | East  -> Point.move (1,  0) s.position
-    | South -> Point.move (0,  1) s.position
-    | West  -> Point.move (-1, 0) s.position
-
   let position s = s.position
 
   let is_inside m s = Point.inside (Matrix.dimensions m) s.position
@@ -96,19 +84,29 @@ module Guard = struct
 
   let stat g = g.stat
 
+  let turn d = let open Vector in
+    match d with
+    | North -> East
+    | East  -> South
+    | South -> West
+    | West  -> North
+
+  let next_point s = let open Vector in
+    match s.direction with
+    | North -> Point.move (0, -1) s.position
+    | East  -> Point.move (1,  0) s.position
+    | South -> Point.move (0,  1) s.position
+    | West  -> Point.move (-1, 0) s.position
+
   let next m g = 
-    let n = Vector.next_point g.vec in
+    let n = next_point g.vec in
     if Matrix.has_obstacle n m then
-      let tm = Vector.create g.vec.position (Vector.turn g.vec.direction) in
+      let tm = Vector.create g.vec.position (turn g.vec.direction) in
       { vec = tm; stat = Turned }
     else
       { vec = (Vector.create n g.vec.direction); stat = Moved }
 
   let vec g = g.vec
-
-  let is_inside m g = Vector.is_inside m g.vec
-
-  let compare_position a b = compare a.vec.position b.vec.position
 
   let position g = g.vec.position
 end

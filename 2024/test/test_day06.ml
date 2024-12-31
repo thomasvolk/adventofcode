@@ -22,7 +22,6 @@ let tests =
       assert_equal ~printer:string_of_int 6 (Day06.count_stucked_guards "day06-sample");
       (* takes 35.48 seconds. *)
       assert_equal ~printer:string_of_int 1480 (Day06.count_stucked_guards "day06");
-      ()
     )
   ]
 
