@@ -86,18 +86,11 @@ end
 
 module Guard = struct
   type status = Turned | Moved | Start
-  type t = { vec: Vector.t; turns: Vector.t list; last: t Option.t; stat: status }
+  type t = { vec: Vector.t; turns: Vector.t list; stat: status }
 
-  let create m = { vec = m; turns = []; last = None; stat = Start }
+  let create m = { vec = m; turns = []; stat = Start }
 
   let is_outside m g = Vector.is_outside m g.vec
-
-  let to_list g =
-    let rec pos_loop r = function
-      | None -> r
-      | Some g' -> pos_loop (r @ [g']) g'.last
-    in
-    pos_loop [] (Some g)
 
   let is_in_a_loop g = 
     let oc = List.find_all ((=) g.vec) g.turns |> List.length in
@@ -107,9 +100,9 @@ module Guard = struct
     let n = Vector.next_point g.vec in
     if Matrix.has_obstacle n m then
       let tm = Vector.create g.vec.position (Vector.turn g.vec.direction) in
-      { last = (Some g); turns = (g.turns @ [tm]); vec = tm; stat = Turned }
+      { turns = (g.turns @ [tm]); vec = tm; stat = Turned }
     else
-      { last = (Some g); turns = g.turns; vec = (Vector.create n g.vec.direction); stat = Moved }
+      { turns = g.turns; vec = (Vector.create n g.vec.direction); stat = Moved }
 
   let vec g = g.vec
 
@@ -121,22 +114,22 @@ module Guard = struct
 end
 
 module Walk = struct
-  type t = Outside of Guard.t | Loop of Guard.t
+  type t = Outside of Point.t list | Loop of Point.t list
   
   let guard w = match w with 
     | Outside g -> g
     | Loop g -> g
 
   let start m g =
-    let rec walk_loop g' =
+    let rec walk_loop path g' =
       if Guard.is_outside m g' then
-        Outside g'
+        Outside path
       else if Guard.is_in_a_loop g' then
-        Loop g'
+        Loop path
       else
-        walk_loop (Guard.next m g')
+        walk_loop (path @ [Guard.position g']) (Guard.next m g')
     in
-    walk_loop g
+    walk_loop [] g
 end
 
 let find_loops m root =
@@ -168,9 +161,8 @@ let count_stucked_guards src =
 let count_steps src =
   let m = Matrix.create src in
   let g = Guard.create (Vector.create (Matrix.guard m) North) in
-  Walk.start m g
-      |> Walk.guard
-      |> Guard.to_list
-      |> List.filter (Guard.is_inside m)
-      |> List.sort_uniq Guard.compare_position
+  match Walk.start m g with
+    | Outside path -> path
+      |> List.sort_uniq compare
       |> List.length
+    | _ -> 0
