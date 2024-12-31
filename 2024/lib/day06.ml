@@ -7,13 +7,16 @@ module Point = struct
   let move (x, y) a = create (a.x + x) (a.y + y)
   let to_string t = "P(" ^ (string_of_int t.x) ^ "," ^ (string_of_int t.y) ^ ")"
   let inside (w, h) t = t.x < w && t.y < h && t.x >= 0 && t.y >= 0
+  let compare a b = compare a b
 end
+
+module PointSet = Set.Make(Point)
 
 module Matrix = struct
   type t = { 
     width: int;
     height: int;
-    obstacles: Point.t list;
+    obstacles: PointSet.t;
     guard: Point.t
   }
 
@@ -29,10 +32,11 @@ module Matrix = struct
       |> List.flatten
       |> List.filter (fun (_, _, c) -> c = v)
       |> List.map (fun (x, y, _) -> Point.create x y)
+      |> PointSet.of_list
     in
     let w = List.length (List.nth m 0) in
     let h = List.length m in 
-    let g = List.nth (find_all "^") 0 in
+    let g = PointSet.choose (find_all "^") in
     {
       width = w;
       height = h;
@@ -43,7 +47,7 @@ module Matrix = struct
   let add_obstacle o m = {
       width = m.width;
       height = m.height;
-      obstacles = m.obstacles @ [o];
+      obstacles = PointSet.add o m.obstacles;
       guard = m.guard
     }
 
@@ -55,9 +59,8 @@ module Matrix = struct
 
   let coordinates i t = Point.create (i mod t.width) (i / t.width) 
 
-  let has_obstacle p m = List.exists ((=) p) m.obstacles
+  let has_obstacle p m = PointSet.mem p m.obstacles
 end
-
 
 module Vector = struct
   type direction = North | East | South | West

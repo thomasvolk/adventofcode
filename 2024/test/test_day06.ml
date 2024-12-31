@@ -8,7 +8,7 @@ let tests =
       let open Day06.Matrix in
       assert_equal ~printer:string_of_int 10 m.width;
       assert_equal ~printer:string_of_int 10 m.height;
-      assert_equal ~printer:string_of_int 8 (List.length m.obstacles);
+      assert_equal ~printer:string_of_int 8 (List.length (Day06.PointSet.to_list m.obstacles));
       let open Day06.Point in
       assert_equal ~printer:string_of_int 6 (m.guard.y);
       assert_equal ~printer:string_of_int 4 (m.guard.x);
@@ -20,7 +20,6 @@ let tests =
     );
     "b" >:: (fun _ -> 
       assert_equal ~printer:string_of_int 6 (Day06.count_stucked_guards "day06-sample");
-      (* takes 35.48 seconds. *)
       assert_equal ~printer:string_of_int 1480 (Day06.count_stucked_guards "day06");
     )
   ]
